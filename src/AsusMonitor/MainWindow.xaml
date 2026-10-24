@@ -1,0 +1,139 @@
+<Window x:Class="AsusMonitor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="asus-monitor" Width="960" Height="600"
+        MinWidth="880" MinHeight="540"
+        Background="#FF141517"
+        FontFamily="Microsoft YaHei UI"
+        Foreground="#FFE8E8E8">
+
+    <Window.Resources>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="#FF1F2124"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+        </Style>
+        <Style x:Key="CardTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#FFF0F0F0"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        <Style x:Key="RowLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#FF9A9A9A"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="RowValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#FFF0F0F0"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="Row" TargetType="Grid">
+            <Setter Property="Margin" Value="0,3"/>
+        </Style>
+        <Style x:Key="ModeButton" TargetType="Button">
+            <Setter Property="Width" Value="130"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Margin" Value="6,0"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Foreground" Value="#FFE8E8E8"/>
+            <Setter Property="Background" Value="#FF2A2D31"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题 + AC 冲突提示 -->
+        <DockPanel Grid.Row="0" Margin="8,0,8,4">
+            <TextBlock Text="asus-monitor" FontSize="20" FontWeight="SemiBold"/>
+            <TextBlock x:Name="AcWarning" DockPanel.Dock="Right" VerticalAlignment="Center"
+                       Foreground="#FFE0A030" FontSize="12" Visibility="Collapsed"
+                       Text="检测到 Armoury Crate 正在运行，切换模式可能被它重置"/>
+        </DockPanel>
+
+        <!-- 四卡片 2x2 -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition/><RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/><ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource Card}" Grid.Row="0" Grid.Column="0">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource CardTitle}" Text="CPU"/>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="频率"/><TextBlock x:Name="CpuClock" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="使用率"/><TextBlock x:Name="CpuLoad" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="温度"/><TextBlock x:Name="CpuTemp" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="电压"/><TextBlock x:Name="CpuVolt" Style="{StaticResource RowValue}"/></Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Grid.Row="0" Grid.Column="1">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource CardTitle}" Text="GPU"/>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="频率"/><TextBlock x:Name="GpuClock" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="显存频率"/><TextBlock x:Name="GpuMemClock" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="使用率"/><TextBlock x:Name="GpuLoad" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="温度"/><TextBlock x:Name="GpuTemp" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="电压"/><TextBlock x:Name="GpuVolt" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="TGP"/><TextBlock x:Name="GpuPower" Style="{StaticResource RowValue}"/></Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Grid.Row="1" Grid.Column="0">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource CardTitle}" Text="风扇"/>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="CPU 风扇"/><TextBlock x:Name="CpuFan" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="GPU 风扇"/><TextBlock x:Name="GpuFan" Style="{StaticResource RowValue}"/></Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Grid.Row="1" Grid.Column="1">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource CardTitle}" Text="内存"/>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="RAM 使用率"/><TextBlock x:Name="MemLoad" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="存储"/><TextBlock x:Name="StorageLoad" Style="{StaticResource RowValue}"/></Grid>
+                    <Grid Style="{StaticResource Row}"><TextBlock Style="{StaticResource RowLabel}" Text="频率"/><TextBlock x:Name="MemClock" Style="{StaticResource RowValue}"/></Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- 操作模式 -->
+        <StackPanel Grid.Row="2" Margin="8,6,8,0">
+            <TextBlock Text="操作模式" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="BtnWindows" Style="{StaticResource ModeButton}" Content="Windows" Tag="Windows" Click="ModeButton_Click"/>
+                <Button x:Name="BtnSilent" Style="{StaticResource ModeButton}" Content="安静" Tag="Silent" Click="ModeButton_Click"/>
+                <Button x:Name="BtnPerformance" Style="{StaticResource ModeButton}" Content="性能" Tag="Performance" Click="ModeButton_Click"/>
+                <Button x:Name="BtnTurbo" Style="{StaticResource ModeButton}" Content="增强" Tag="Turbo" Click="ModeButton_Click"/>
+                <Button x:Name="BtnManual" Style="{StaticResource ModeButton}" Content="手动" Tag="Manual" Click="ModeButton_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- 状态栏 -->
+        <TextBlock x:Name="StatusBar" Grid.Row="3" Margin="8,8,8,0"
+                   FontSize="11" Foreground="#FF777777" Text="初始化中…"/>
+    </Grid>
+</Window>
