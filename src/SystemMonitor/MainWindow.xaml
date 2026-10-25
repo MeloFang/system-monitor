@@ -89,8 +89,8 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Rectangle Width="7" Height="17" RadiusX="2" RadiusY="2" Fill="{StaticResource Accent}" Margin="0,0,12,0"/>
-                    <TextBlock Text="asus-monitor" FontSize="15" FontWeight="SemiBold"/>
-                    <TextBlock Text="ROG Strix · 硬件监控" Margin="14,2,0,0" FontSize="11" Foreground="{StaticResource TextDim}"/>
+                    <TextBlock Text="SystemMonitor" FontSize="15" FontWeight="SemiBold"/>
+                    <TextBlock Text="Windows 硬件监控" Margin="14,2,0,0" FontSize="11" Foreground="{StaticResource TextDim}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button Style="{StaticResource ChromeBtn}" Content="—" Click="Minimize_Click"/>
@@ -135,7 +135,7 @@
                                 <TextBlock Grid.Column="1" Text="{Binding CpuLoadText}" Style="{StaticResource Value}"/>
                             </Grid>
                             <ProgressBar Style="{StaticResource Bar}" Value="{Binding CpuLoadValue, Mode=OneWay}" Margin="0,0,0,12"/>
-                            <Grid Style="{StaticResource Row}">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="80"/>
                                     <ColumnDefinition/>
