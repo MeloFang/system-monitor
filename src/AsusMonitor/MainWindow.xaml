@@ -113,7 +113,7 @@
                         <StackPanel Grid.Row="0">
                             <TextBlock Text="CPU" FontSize="14" FontWeight="SemiBold"/>
                             <TextBlock x:Name="CpuName" FontSize="11" Foreground="{StaticResource TextDim}" Margin="0,4,0,0"
-                                       TextWrapping="Wrap" LineHeight="15" Text="—"/>
+                                       TextWrapping="Wrap" LineHeight="15" MinHeight="30" Text="—"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,18,0,0">
@@ -156,7 +156,7 @@
                         <StackPanel Grid.Row="0">
                             <TextBlock Text="GPU" FontSize="14" FontWeight="SemiBold"/>
                             <TextBlock x:Name="GpuName" FontSize="11" Foreground="{StaticResource TextDim}" Margin="0,4,0,0"
-                                       TextWrapping="Wrap" LineHeight="15" Text="—"/>
+                                       TextWrapping="Wrap" LineHeight="15" MinHeight="30" Text="—"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,18,0,0">
@@ -207,7 +207,7 @@
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0">
                             <TextBlock Text="内存" FontSize="14" FontWeight="SemiBold"/>
-                            <TextBlock FontSize="11" Foreground="{StaticResource TextDim}" Margin="0,4,0,0">
+                            <TextBlock FontSize="11" Foreground="{StaticResource TextDim}" Margin="0,4,0,0" MinHeight="30">
                                 <Run Text="{Binding MemTotalText, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding MemClockText, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
