@@ -60,6 +60,10 @@ public partial class App : System.Windows.Application
 
         AppLog.Info("==== SystemMonitor 启动 ====");
         AppLog.Info(AppLog.EnvironmentSnapshot().Replace(Environment.NewLine, " | "));
+
+        // 若用环境变量 SYSMON_TRACE=1 启动，这里提示 CSV 路径（也可用托盘菜单随时开关）
+        if (AppLog.IsTracing && AppLog.TraceFilePath is { } tracePath)
+            AppLog.Info("读数追踪已开启（SYSMON_TRACE）→ " + tracePath);
     }
 
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

@@ -70,6 +70,12 @@ public partial class MainWindow : Window
             SetAutoStart(autoItem.Checked);
         };
         menu.Items.Add(autoItem);
+
+        // 读数追踪开关：跑 3DMark / 压力测试前点一下开始，跑完再点一下停止
+        var traceItem = new ToolStripMenuItem("记录读数到 CSV（压力测试用）") { Checked = AppLog.IsTracing };
+        traceItem.Click += (_, _) => ToggleTrace(traceItem);
+        menu.Items.Add(traceItem);
+
         menu.Items.Add("导出诊断报告", null, (_, _) => ExportDiagnostics());
         menu.Items.Add("打开日志目录", null, (_, _) => OpenLogDir());
         menu.Items.Add(new ToolStripSeparator());
@@ -112,6 +118,36 @@ public partial class MainWindow : Window
             $"诊断报告已生成：\n{path}\n\n是否打开所在文件夹？",
             "SystemMonitor", MessageBoxButton.YesNo, MessageBoxImage.Information);
         if (r == MessageBoxResult.Yes) OpenFolder(path);
+    }
+
+    /// <summary>开关读数追踪：开始/停止写 CSV（每次采集一行）。</summary>
+    private static void ToggleTrace(ToolStripMenuItem item)
+    {
+        if (AppLog.IsTracing)
+        {
+            string? file = AppLog.StopTrace();
+            item.Checked = false;
+            System.Windows.MessageBox.Show(
+                "已停止记录读数。\n\nCSV 文件：\n" + file +
+                "\n\n可用 Excel 打开查看整条曲线。",
+                "SystemMonitor", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (file is not null) OpenFolder(file);
+        }
+        else
+        {
+            string? file = AppLog.StartTrace();
+            item.Checked = file is not null;
+            if (file is null)
+            {
+                System.Windows.MessageBox.Show("无法创建 CSV 文件，详见日志。",
+                    "SystemMonitor", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            System.Windows.MessageBox.Show(
+                "开始记录读数（每秒一行）。\n\nCSV 文件：\n" + file +
+                "\n\n现在去跑 3DMark，跑完再点一次本菜单停止记录。",
+                "SystemMonitor", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     private void OpenLogDir()

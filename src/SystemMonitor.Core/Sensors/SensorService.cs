@@ -65,13 +65,18 @@ public sealed class SensorService : IDisposable
     {
         try
         {
-            return CollectCore();
+            var snap = CollectCore();
+            // 读数追踪（环境变量 SYSMON_TRACE=1 时开启，否则立即返回）
+            AppLog.AppendReading(snap);
+            return snap;
         }
         catch (Exception ex)
         {
             if (_collectFailCount++ == 0)
                 AppLog.Error("Collect() 采集失败（已降级为空快照；持续失败只记第一次）", ex);
-            return SensorSnapshot.Empty;
+            var empty = SensorSnapshot.Empty;
+            AppLog.AppendReading(empty);
+            return empty;
         }
     }
 

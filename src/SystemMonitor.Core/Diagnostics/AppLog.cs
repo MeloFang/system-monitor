@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
+using SystemMonitor.Core.Sensors;
 
 namespace SystemMonitor.Core.Diagnostics;
 
@@ -41,6 +43,84 @@ public static class AppLog
     public static void Info(string message) => Write("INFO", message, null);
     public static void Warn(string message, Exception? ex = null) => Write("WARN", message, ex);
     public static void Error(string message, Exception? ex) => Write("ERROR", message, ex);
+
+    // ---------- 读数追踪（跑 3DMark / 压力测试时抓整条曲线）----------
+
+    /// <summary>
+    /// 详细读数追踪：先设环境变量 SYSMON_TRACE=1 再启动本程序即开启。
+    /// 每次采集（约 1 秒）向 readings-*.csv 追加一行，跑完压力测试可直接用 Excel 看曲线。
+    /// 未开启时所有调用立即返回，零开销。
+    /// </summary>
+    // 启动即追踪：可设环境变量 SYSMON_TRACE=1；也可运行时用托盘菜单 StartTrace() 开启
+    private static bool _traceEnabled =
+        (Environment.GetEnvironmentVariable("SYSMON_TRACE") ?? "").Trim().ToLowerInvariant() is "1" or "true" or "yes";
+
+    private static string? _traceFile;
+
+    /// <summary>是否正在追踪。</summary>
+    public static bool IsTracing => _traceEnabled && _traceFile is not null;
+
+    /// <summary>当前追踪文件路径；未开启时为 null。</summary>
+    public static string? TraceFilePath => IsTracing ? _traceFile : null;
+
+    /// <summary>开始追踪，返回 CSV 文件路径；失败返回 null。</summary>
+    public static string? StartTrace()
+    {
+        try
+        {
+            _traceFile = Path.Combine(LogDirectory, $"readings-{DateTime.Now:yyyyMMdd-HHmmss}.csv");
+            _traceEnabled = true;
+            Info("读数追踪已开启 → " + _traceFile);
+            return _traceFile;
+        }
+        catch { return null; }
+    }
+
+    /// <summary>停止追踪，返回结束前写入的文件路径。</summary>
+    public static string? StopTrace()
+    {
+        var last = _traceFile;
+        _traceEnabled = false;
+        _traceFile = null;
+        Info("读数追踪已停止（文件：" + last + "）");
+        return last;
+    }
+
+    private const string CsvHeader =
+        "Time,CpuClockMHz,CpuLoadPct,CpuTempC,GpuCoreMHz,GpuMemMHz,GpuLoadPct,GpuTempC,GpuPowerW,MemLoadPct,MemUsedGB,StoragePct";
+
+    /// <summary>把一次采集快照写入 CSV。追踪未开启时直接返回。</summary>
+    public static void AppendReading(SensorSnapshot snap)
+    {
+        if (!IsTracing) return;
+        var file = _traceFile;
+        if (file is null) return;
+
+        try
+        {
+            var line = string.Join(",", new[]
+            {
+                DateTime.Now.ToString("HH:mm:ss"),
+                Num(snap.CpuClock), Num(snap.CpuLoad), Num(snap.CpuTemp),
+                Num(snap.GpuClock), Num(snap.GpuMemClock), Num(snap.GpuLoad),
+                Num(snap.GpuTemp), Num(snap.GpuPower),
+                Num(snap.MemLoad), Num(snap.MemUsed), Num(snap.StorageLoad)
+            });
+
+            lock (Gate)
+            {
+                bool needHeader = !File.Exists(file);
+                using var sw = new StreamWriter(file, append: true, Encoding.UTF8);
+                if (needHeader) sw.WriteLine(CsvHeader);
+                sw.WriteLine(line);
+            }
+        }
+        catch { /* 追踪失败绝不影响主功能 */ }
+    }
+
+    /// <summary>数值按不变文化格式化（小数点为 .，方便 Excel 打开）；null 写空。</summary>
+    private static string Num(double? v)
+        => v is null ? "" : v.Value.ToString("0.##", CultureInfo.InvariantCulture);
 
     private static void Write(string level, string message, Exception? ex)
     {
