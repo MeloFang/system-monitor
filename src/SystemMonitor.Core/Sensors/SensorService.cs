@@ -19,6 +19,7 @@ public sealed class SensorService : IDisposable
     private readonly bool _nvmlReady;
     private int _collectFailCount;
     private int _updateFailLogged;
+    private int _clockNullLogged;
 
     /// <summary>硬件监控(LHM)是否初始化成功。</summary>
     public bool HardwareReady { get; private set; }
@@ -99,14 +100,14 @@ public sealed class SensorService : IDisposable
         // 独显优先；独显休眠时回退到核显
         IHardware? gpu = gpuNvidia ?? gpuAmd;
 
-        return new SensorSnapshot(
+        var snap = new SensorSnapshot(
             CpuClock: CpuAverageClock(cpu),
             CpuLoad: Find(cpu, SensorType.Load, "CPU Total"),
             CpuTemp: Find(cpu, SensorType.Temperature, "Core (Tctl/Tdie)")
                      ?? FirstOfType(cpu, SensorType.Temperature),
             CpuVoltage: Find(cpu, SensorType.Voltage, "Core (SVI2 TFN)"),
             CpuName: cpu?.Name ?? Formatting.Missing,
-            GpuClock: Find(gpu, SensorType.Clock, "GPU Core"),
+            GpuClock: Find(gpu, SensorType.Clock, "GPU Core") ?? FirstCoreClock(gpu),
             GpuMemClock: Find(gpu, SensorType.Clock, "GPU Memory"),
             GpuLoad: Find(gpu, SensorType.Load, "GPU Core"),
             GpuTemp: Find(gpu, SensorType.Temperature, "GPU Core"),
@@ -119,6 +120,38 @@ public sealed class SensorService : IDisposable
             MemTotal: _memTotal,
             MemClock: _memClock
         );
+
+        // 诊断：高负载但核心频率读不到时，记录所有 Clock 传感器状态（限流，每 ~5 分钟一次）
+        if (snap.GpuClock is null && (snap.GpuLoad ?? 0) > 5 && _clockNullLogged++ % 300 == 0)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append("高负载但 GPU 核心频率为 null，当前 Clock 传感器：");
+            if (gpu is not null)
+            {
+                foreach (var s in gpu.Sensors)
+                {
+                    if (s.SensorType == SensorType.Clock)
+                        sb.Append($"[{s.Name}={s.Value}] ");
+                }
+            }
+            AppLog.Warn(sb.ToString());
+        }
+
+        return snap;
+    }
+
+    /// <summary>兜底：取非显存的核心频率（"GPU Core" 值为 null 时使用）。</summary>
+    private static double? FirstCoreClock(IHardware? gpu)
+    {
+        if (gpu is null) return null;
+        foreach (ISensor s in gpu.Sensors)
+        {
+            if (s.SensorType == SensorType.Clock
+                && s.Value is not null
+                && !s.Name.Contains("Memory", StringComparison.OrdinalIgnoreCase))
+                return s.Value.Value;
+        }
+        return null;
     }
 
     private void SafeUpdate(IHardware hw)
