@@ -231,7 +231,7 @@
                                     <ColumnDefinition Width="80"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="存储占用" Style="{StaticResource Label}"/>
+                                <TextBlock Grid.Column="0" Text="内存占用" Style="{StaticResource Label}"/>
                                 <TextBlock Grid.Column="1" Text="{Binding StorageLoadText}" Style="{StaticResource Value}"/>
                             </Grid>
                             <ProgressBar Style="{StaticResource Bar}" Value="{Binding StorageLoadValue, Mode=OneWay}" Margin="0,0,0,12"/>

@@ -17,17 +17,32 @@ public partial class App : System.Windows.Application
     {
         // ========== 单实例检查（放在最前面，防止多开）==========
         // 尝试打开已存在的 Mutex
-        if (Mutex.TryOpenExisting(MutexName, out _mutex))
+        bool createdNew;
+        _mutex = new Mutex(false, MutexName, out createdNew);
+        
+        if (!createdNew)
         {
-            // Mutex 存在 → 已有实例在运行
-            AppLog.Info("检测到已有实例，尝试激活旧窗口...");
-            ActivateExistingInstance();
-            Environment.Exit(0);
+            // Mutex 已存在 → 已有实例在运行
+            AppLog.Info("检测到已有实例，弹窗提示...");
+            
+            // 延迟弹窗，确保 UI 初始化完成
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                System.Windows.MessageBox.Show(
+                    "SystemMonitor 已经在运行中。\n\n请检查系统托盘（右下角），或关闭旧实例后重新启动。",
+                    "SystemMonitor",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }), System.Windows.Threading.DispatcherPriority.Background);
+            
+            // 不持有 Mutex，直接退出
+            _mutex.Dispose();
+            _mutex = null;
             return;
         }
 
-        // Mutex 不存在 → 创建并拥有它
-        _mutex = new Mutex(true, MutexName);
+        // 成功创建 Mutex → 拥有它
+        _mutex.ReleaseMutex();
 
         // ========== 全局异常收集 ==========
         DispatcherUnhandledException += OnDispatcherUnhandledException;
@@ -36,37 +51,6 @@ public partial class App : System.Windows.Application
 
         AppLog.Info("==== SystemMonitor 启动 ====");
         AppLog.Info(AppLog.EnvironmentSnapshot().Replace(Environment.NewLine, " | "));
-    }
-
-    /// <summary>
-    /// 通过枚举进程找到旧实例并激活其主窗口
-    /// </summary>
-    private static void ActivateExistingInstance()
-    {
-        try
-        {
-            var currentPid = Environment.ProcessId;
-            var processes = System.Diagnostics.Process.GetProcessesByName("SystemMonitor");
-            foreach (var p in processes)
-            {
-                if (p.Id == currentPid) continue;
-
-                // 找到旧进程，尝试激活其窗口
-                AppLog.Info($"发现旧实例 (PID={p.Id})");
-
-                // 简单做法：直接弹窗告知用户
-                System.Windows.MessageBox.Show(
-                    "SystemMonitor 已经在运行中。\n\n旧实例可能最小化在系统托盘，请检查右下角。",
-                    "SystemMonitor",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-                break;
-            }
-        }
-        catch (Exception ex)
-        {
-            AppLog.Error("激活旧实例失败", ex);
-        }
     }
 
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
@@ -103,8 +87,7 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
-        try { _mutex?.ReleaseMutex(); } catch { }
-        try { _mutex?.Dispose(); } catch { }
+        try { _mutex?.ReleaseMutex(); _mutex?.Dispose(); } catch { }
         base.OnExit(e);
     }
 }
