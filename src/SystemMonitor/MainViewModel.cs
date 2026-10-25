@@ -39,13 +39,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public double CpuTempValue => _cpuTemp ?? 0;
     public string CpuVoltageText => Formatting.Volt(_cpuVoltage);
 
-    // 空闲休眠时驱动不报告核心频率（NVML 返回 0 / LHM 为 null），此时按负载状态显示「待机」而非 "--"
+    // 空闲休眠时驱动不报告核心频率（NVML 返 1 / LHM 偶发极小值，已在数据层过滤为 null）。
+    // 负载 <5% 视为空闲（界面显示 0.0% 的实际值可能是 0.04%，不能按 ==0 判断）
     public string GpuClockText => _gpuClock is not null
         ? Formatting.Mhz(_gpuClock)
-        : ((_gpuLoad ?? 0) == 0 ? "待机" : Formatting.Missing);
+        : ((_gpuLoad ?? 0) < 5 ? "待机" : Formatting.Missing);
     public string GpuMemClockText => _gpuMemClock is not null
         ? Formatting.Mhz(_gpuMemClock)
-        : ((_gpuLoad ?? 0) == 0 ? "待机" : Formatting.Missing);
+        : ((_gpuLoad ?? 0) < 5 ? "待机" : Formatting.Missing);
     public string GpuLoadText => Formatting.Percent(_gpuLoad);
     public double GpuLoadValue => _gpuLoad ?? 0;
     public string GpuTempText => Formatting.Celsius(_gpuTemp);
