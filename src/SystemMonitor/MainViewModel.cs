@@ -1,8 +1,8 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using AsusMonitor.Core.Sensors;
+using SystemMonitor.Core.Sensors;
 
-namespace AsusMonitor;
+namespace SystemMonitor;
 
 /// <summary>界面数据。同时提供格式化文本与原始数值（数值供进度条使用）。</summary>
 public sealed class MainViewModel : INotifyPropertyChanged

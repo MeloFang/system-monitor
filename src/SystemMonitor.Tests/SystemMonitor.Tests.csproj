@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AsusMonitor.Core\AsusMonitor.Core.csproj" />
+    <ProjectReference Include="..\SystemMonitor.Core\SystemMonitor.Core.csproj" />
   </ItemGroup>
 
 </Project>

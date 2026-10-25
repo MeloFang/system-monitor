@@ -1,4 +1,4 @@
-# HANDOFF.md — asus-monitor 续接文档
+# HANDOFF.md — system-monitor 续接文档
 
 > 任何人/任何会话接手本项目，先读这份 + PRODUCT.md。每完成一个阶段必须更新本文。
 

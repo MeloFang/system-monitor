@@ -1,4 +1,4 @@
-namespace AsusMonitor.Core.Sensors;
+namespace SystemMonitor.Core.Sensors;
 
 /// <summary>显示格式化。所有方法对 null 返回 "--"，绝不抛异常。</summary>
 public static class Formatting

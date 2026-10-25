@@ -1,4 +1,4 @@
-# PLAN.md — asus-monitor 实施计划
+# PLAN.md — system-monitor 实施计划
 
 > 状态标记：`[ ]` 未开始 / `[~]` 进行中 / `[x]` 完成。每步带验收信号，做完更新状态并同步 HANDOFF.md。
 
@@ -7,7 +7,7 @@
 - [x] git init，建 .gitignore（bin/ obj/）
 
 ## 步骤 1：探针（半天）— 验证可行性，先于一切
-- [x] 建 `AsusMonitor.Probe` 控制台项目，引用 LibreHardwareMonitorLib
+- [x] 建 `SystemMonitor.Probe` 控制台项目，引用 LibreHardwareMonitorLib
 - [x] 枚举并打印全部传感器（类型/名称/当前值），每秒刷新，持续 10 轮
 - [x] 枚举华硕 WMI 接口：读当前性能模式值
 - [x] NVML 读 GPU 温度/频率/TGP

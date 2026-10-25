@@ -2,7 +2,7 @@ using System.Management;
 using System.Runtime.InteropServices;
 using LibreHardwareMonitor.Hardware;
 
-namespace AsusMonitor.Core.Sensors;
+namespace SystemMonitor.Core.Sensors;
 
 /// <summary>
 /// 采集层唯一入口。只读（AGENTS.md 纪律 #3）。

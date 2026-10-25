@@ -2,10 +2,10 @@ using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Threading;
-using AsusMonitor.Core.Sensors;
+using SystemMonitor.Core.Sensors;
 using Microsoft.Win32;
 
-namespace AsusMonitor;
+namespace SystemMonitor;
 
 public partial class MainWindow : Window
 {
@@ -80,7 +80,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            using var stream = typeof(MainWindow).Assembly.GetManifestResourceStream("AsusMonitor.app.ico");
+            using var stream = typeof(MainWindow).Assembly.GetManifestResourceStream("SystemMonitor.app.ico");
             if (stream is not null) return new Icon(stream);
         }
         catch { }

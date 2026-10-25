@@ -1,19 +1,19 @@
-# AGENTS.md — asus-monitor
+# AGENTS.md — system-monitor
 
 > 项目上下文单一来源。新会话/新 Agent 先读本文件 + PRODUCT.md + GLOSSARY.md + HANDOFF.md 即可开工。
 
 ## 项目结构（规划）
 
 ```
-asus-monitor/
+system-monitor/
 ├── src/
-│   ├── AsusMonitor/              # WPF 主程序
+│   ├── SystemMonitor/              # WPF 主程序
 │   │   ├── Sensors/              # 采集层：LHM + NVML 封装，1s 轮询
 │   │   ├── Modes/                # 模式控制层：ACPI WMI 五档读写
 │   │   ├── Ui/                   # 主面板（暗色，仿 AC 布局）
 │   │   └── app.manifest          # requireAdministrator
-│   ├── AsusMonitor.Probe/        # 控制台探针：枚举传感器与 WMI 接口（第一步先做这个）
-│   └── AsusMonitor.Tests/        # 单元测试
+│   ├── SystemMonitor.Probe/        # 控制台探针：枚举传感器与 WMI 接口（第一步先做这个）
+│   └── SystemMonitor.Tests/        # 单元测试
 ├── docs/
 │   └── adr/                      # 架构决策记录
 ├── PRODUCT.md / PLAN.md / GLOSSARY.md / HANDOFF.md / AGENTS.md
@@ -22,10 +22,10 @@ asus-monitor/
 ## 构建与运行
 
 ```bash
-dotnet build src/AsusMonitor.sln
-dotnet run --project src/AsusMonitor.Probe      # 探针（需管理员）
-dotnet test src/AsusMonitor.Tests
-dotnet publish src/AsusMonitor -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
+dotnet build src/SystemMonitor.sln
+dotnet run --project src/SystemMonitor.Probe      # 探针（需管理员）
+dotnet test src/SystemMonitor.Tests
+dotnet publish src/SystemMonitor -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
 ```
 
 ## 技术栈与关键依赖

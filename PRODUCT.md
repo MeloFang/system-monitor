@@ -1,4 +1,4 @@
-# PRODUCT.md — asus-monitor（ROG 系统监控 + 性能模式面板）
+# PRODUCT.md — system-monitor（ROG 系统监控 + 性能模式面板）
 
 ## 一句话目标
 

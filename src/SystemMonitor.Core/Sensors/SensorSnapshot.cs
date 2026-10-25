@@ -1,4 +1,4 @@
-namespace AsusMonitor.Core.Sensors;
+namespace SystemMonitor.Core.Sensors;
 
 /// <summary>
 /// 一次采集周期的完整快照。单位固定：MHz / % / °C / V / W / GB。

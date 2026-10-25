@@ -5,8 +5,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>AsusMonitor.Probe</AssemblyName>
-    <RootNamespace>AsusMonitor.Probe</RootNamespace>
+    <AssemblyName>SystemMonitor.Probe</AssemblyName>
+    <RootNamespace>SystemMonitor.Probe</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-# asus-monitor
+# system-monitor
 
 轻量 Windows 硬件监控面板，最初从华硕 Armoury Crate 的「系统使用率」面板拆分而来。现已不依赖任何华硕驱动，可在任意 Windows 电脑上运行（详见下方「非华硕电脑能用吗」）。纯只读，不写任何硬件。
 
@@ -13,7 +13,7 @@
 
 ## 运行
 
-双击 `AsusMonitor.exe` 即可，无需安装。
+双击 `SystemMonitor.exe` 即可，无需安装。
 
 - **首次会弹 UAC，必须点"是"**：温度等传感器读取需要管理员权限（LibreHardwareMonitor 的内核驱动）
 - 需要 **.NET 8 运行时**（本机已装）
@@ -44,7 +44,7 @@
 
 ## 常见问题
 
-**杀软报毒/拦截**：LibreHardwareMonitor 的 WinRing0 驱动常被误报，把 `AsusMonitor.exe` 加入白名单即可。
+**杀软报毒/拦截**：LibreHardwareMonitor 的 WinRing0 驱动常被误报，把 `SystemMonitor.exe` 加入白名单即可。
 
 **某几项显示 `--`**：该传感器在本机型未被固件暴露，属正常降级，其余项不受影响。
 
@@ -55,11 +55,11 @@
 ## 开发与构建
 
 ```bash
-dotnet build src/AsusMonitor.sln
+dotnet build src/SystemMonitor.sln
 dotnet test
-dotnet publish src/AsusMonitor -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o dist
+dotnet publish src/SystemMonitor -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o dist
 ```
 
-发布前先结束正在运行的 `AsusMonitor.exe`，否则单文件发布因文件占用失败。
+发布前先结束正在运行的 `SystemMonitor.exe`，否则单文件发布因文件占用失败。
 
 项目文档：`PRODUCT.md`（范围）、`PLAN.md`（进度）、`AGENTS.md`（开发纪律）、`HANDOFF.md`（续接说明）。

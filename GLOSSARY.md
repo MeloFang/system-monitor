@@ -1,4 +1,4 @@
-# GLOSSARY.md — asus-monitor 术语表
+# GLOSSARY.md — system-monitor 术语表
 
 | 术语 | 含义 |
 |:---|:---|

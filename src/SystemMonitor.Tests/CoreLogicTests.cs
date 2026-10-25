@@ -1,7 +1,7 @@
-using AsusMonitor.Core.Sensors;
+using SystemMonitor.Core.Sensors;
 using Xunit;
 
-namespace AsusMonitor.Tests;
+namespace SystemMonitor.Tests;
 
 public class FormattingTests
 {

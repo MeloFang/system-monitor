@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsusMonitor.Core", "AsusMonitor.Core\AsusMonitor.Core.csproj", "{8C230326-6602-447D-89E2-091BC0EC15FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemMonitor.Core", "SystemMonitor.Core\SystemMonitor.Core.csproj", "{8C230326-6602-447D-89E2-091BC0EC15FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsusMonitor.Tests", "AsusMonitor.Tests\AsusMonitor.Tests.csproj", "{42AA5071-A1CD-4248-A297-04EEB6433053}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemMonitor.Tests", "SystemMonitor.Tests\SystemMonitor.Tests.csproj", "{42AA5071-A1CD-4248-A297-04EEB6433053}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsusMonitor", "AsusMonitor\AsusMonitor.csproj", "{BC13D717-4AE0-41DA-83F1-1D0D1195DF93}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemMonitor", "SystemMonitor\SystemMonitor.csproj", "{BC13D717-4AE0-41DA-83F1-1D0D1195DF93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsusMonitor.Probe", "AsusMonitor.Probe\AsusMonitor.Probe.csproj", "{5CF3748D-0C78-49E1-BCDA-EB46F1B946A4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemMonitor.Probe", "SystemMonitor.Probe\SystemMonitor.Probe.csproj", "{5CF3748D-0C78-49E1-BCDA-EB46F1B946A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,4 @@
-// AsusMonitor.Probe —— 可行性探针
+// SystemMonitor.Probe —— 可行性探针
 // 职责：枚举本机可读传感器（LibreHardwareMonitor）+ 经华硕 ATKACPI 驱动读当前性能模式。
 // 只读，不写任何硬件。需要管理员权限运行。
 

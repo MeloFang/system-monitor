@@ -9,8 +9,8 @@
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>app.ico</ApplicationIcon>
-    <AssemblyName>AsusMonitor</AssemblyName>
-    <RootNamespace>AsusMonitor</RootNamespace>
+    <AssemblyName>SystemMonitor</AssemblyName>
+    <RootNamespace>SystemMonitor</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AsusMonitor.Core\AsusMonitor.Core.csproj" />
+    <ProjectReference Include="..\SystemMonitor.Core\SystemMonitor.Core.csproj" />
   </ItemGroup>
 
 </Project>
