@@ -66,8 +66,8 @@ public sealed class SensorService : IDisposable
         try
         {
             var snap = CollectCore();
-            // 读数追踪（环境变量 SYSMON_TRACE=1 时开启，否则立即返回）
-            AppLog.AppendReading(snap);
+            // 读数追踪：附带 NVML 原始频率，便于和 LHM 读数对比（未开启时立即返回）
+            AppLog.AppendReading(snap, NvmlClockMHz(NvmlClockGraphics), NvmlClockMHz(NvmlClockMem));
             return snap;
         }
         catch (Exception ex)
@@ -112,8 +112,11 @@ public sealed class SensorService : IDisposable
                      ?? FirstOfType(cpu, SensorType.Temperature),
             CpuVoltage: Find(cpu, SensorType.Voltage, "Core (SVI2 TFN)"),
             CpuName: cpu?.Name ?? Formatting.Missing,
-            GpuClock: Find(gpu, SensorType.Clock, "GPU Core") ?? FirstCoreClock(gpu),
-            GpuMemClock: Find(gpu, SensorType.Clock, "GPU Memory"),
+            // GPU 频率优先走 NVML（NVIDIA 官方接口，比 LHM 更权威），读不到再回退 LHM
+            GpuClock: NvmlClockMHz(NvmlClockGraphics)
+                      ?? Find(gpu, SensorType.Clock, "GPU Core") ?? FirstCoreClock(gpu),
+            GpuMemClock: NvmlClockMHz(NvmlClockMem)
+                         ?? Find(gpu, SensorType.Clock, "GPU Memory"),
             GpuLoad: Find(gpu, SensorType.Load, "GPU Core"),
             GpuTemp: Find(gpu, SensorType.Temperature, "GPU Core"),
             GpuVoltage: FirstOfType(gpu, SensorType.Voltage),
@@ -281,6 +284,21 @@ public sealed class SensorService : IDisposable
         catch { return null; }
     }
 
+    // NVML 时钟类型：1=Graphics(核心)，2=SM，3=Mem(显存)
+    private const int NvmlClockGraphics = 1;
+    private const int NvmlClockMem = 3;
+
+    /// <summary>NVML 读当前时钟频率(MHz)。NVIDIA 官方接口，权威度高于 LHM。</summary>
+    private double? NvmlClockMHz(int clockType)
+    {
+        if (!_nvmlReady) return null;
+        try
+        {
+            return NvmlGetClock(_nvmlDevice, clockType, out uint mhz) == 0 && mhz > 0 ? mhz : null;
+        }
+        catch { return null; }
+    }
+
     /// <summary>传感器/驱动状态摘要，供诊断报告与界面提示。</summary>
     public string DescribeStatus()
     {
@@ -304,6 +322,8 @@ public sealed class SensorService : IDisposable
     private static extern int NvmlGetHandle(uint index, out IntPtr device);
     [DllImport("nvml.dll", EntryPoint = "nvmlDeviceGetPowerUsage")]
     private static extern int NvmlGetPower(IntPtr device, out uint powerMilliwatts);
+    [DllImport("nvml.dll", EntryPoint = "nvmlDeviceGetClockInfo")]
+    private static extern int NvmlGetClock(IntPtr device, int clockType, out uint clockMHz);
     [DllImport("nvml.dll", EntryPoint = "nvmlShutdown")]
     private static extern int NvmlShutdown();
 }

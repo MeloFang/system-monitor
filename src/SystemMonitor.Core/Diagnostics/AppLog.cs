@@ -87,10 +87,13 @@ public static class AppLog
     }
 
     private const string CsvHeader =
-        "Time,CpuClockMHz,CpuLoadPct,CpuTempC,GpuCoreMHz,GpuMemMHz,GpuLoadPct,GpuTempC,GpuPowerW,MemLoadPct,MemUsedGB,StoragePct";
+        "Time,CpuClockMHz,CpuLoadPct,CpuTempC,GpuCoreMHz,GpuMemMHz,GpuLoadPct,GpuTempC,GpuPowerW,MemLoadPct,MemUsedGB,StoragePct,NvmlCoreMHz,NvmlMemMHz";
 
-    /// <summary>把一次采集快照写入 CSV。追踪未开启时直接返回。</summary>
-    public static void AppendReading(SensorSnapshot snap)
+    /// <summary>
+    /// 把一次采集快照写入 CSV。追踪未开启时直接返回。
+    /// 末尾两列是 NVML(NVIDIA 官方接口) 原始读数，用于和 LHM 读数交叉对比，判断谁更准。
+    /// </summary>
+    public static void AppendReading(SensorSnapshot snap, double? nvmlCoreMHz = null, double? nvmlMemMHz = null)
     {
         if (!IsTracing) return;
         var file = _traceFile;
@@ -104,7 +107,8 @@ public static class AppLog
                 Num(snap.CpuClock), Num(snap.CpuLoad), Num(snap.CpuTemp),
                 Num(snap.GpuClock), Num(snap.GpuMemClock), Num(snap.GpuLoad),
                 Num(snap.GpuTemp), Num(snap.GpuPower),
-                Num(snap.MemLoad), Num(snap.MemUsed), Num(snap.StorageLoad)
+                Num(snap.MemLoad), Num(snap.MemUsed), Num(snap.StorageLoad),
+                Num(nvmlCoreMHz), Num(nvmlMemMHz)
             });
 
             lock (Gate)
