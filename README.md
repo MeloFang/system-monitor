@@ -1,6 +1,6 @@
 # asus-monitor
 
-轻量 Windows 硬件监控面板，替代 Armoury Crate 的「系统使用率」面板。纯只读，不写任何硬件。
+轻量 Windows 硬件监控面板，最初从华硕 Armoury Crate 的「系统使用率」面板拆分而来。现已不依赖任何华硕驱动，可在任意 Windows 电脑上运行（详见下方「非华硕电脑能用吗」）。纯只读，不写任何硬件。
 
 ## 功能
 
@@ -47,6 +47,8 @@
 **杀软报毒/拦截**：LibreHardwareMonitor 的 WinRing0 驱动常被误报，把 `AsusMonitor.exe` 加入白名单即可。
 
 **某几项显示 `--`**：该传感器在本机型未被固件暴露，属正常降级，其余项不受影响。
+
+**非华硕电脑能用吗**：能。本项目所有数据均来自 LibreHardwareMonitor / NVIDIA NVML / Windows WMI / .NET DriveInfo，与华硕驱动（ATKACPI）无关；当初拆自 Armoury Crate 的风扇读数与性能模式切换已被移除，因此不再绑定华硕硬件。仅当机器没有 NVIDIA 独显时，GPU 功耗一栏留空（其余 GPU 指标仍由 LibreHardwareMonitor 提供）。
 
 **温度读不到**：确认已用管理员权限运行。
 
