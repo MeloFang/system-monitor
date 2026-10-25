@@ -119,7 +119,7 @@
                         <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,18,0,0">
                             <TextBlock Text="{Binding CpuTempText}" FontFamily="Consolas" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                             <TextBlock Text="温度" FontSize="11" Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                            <Viewbox Width="34" Height="34" HorizontalAlignment="Center" Margin="0,16,0,0">
+                            <Viewbox Width="44" Height="44" HorizontalAlignment="Center" Margin="0,14,0,0">
                                 <Path Stroke="{StaticResource Accent}" StrokeThickness="1.2" Fill="Transparent"
                                       Data="M6 6h12v12H6z M10 10h4v4h-4z M9 3v3 M12 3v3 M15 3v3 M9 18v3 M12 18v3 M15 18v3 M3 9h3 M3 12h3 M3 15h3 M18 9h3 M18 12h3 M18 15h3"/>
                             </Viewbox>
@@ -162,7 +162,7 @@
                         <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,18,0,0">
                             <TextBlock Text="{Binding GpuTempText}" FontFamily="Consolas" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                             <TextBlock Text="温度" FontSize="11" Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                            <Viewbox Width="44" Height="33" HorizontalAlignment="Center" Margin="0,16,0,0">
+                            <Viewbox Width="56" Height="42" HorizontalAlignment="Center" Margin="0,14,0,0">
                                 <Canvas Width="40" Height="30">
                                     <Path Fill="{StaticResource Accent}" Data="M3 2h2.6v24H3z"/>
                                     <Path Fill="{StaticResource Accent}" Data="M7 4h27a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3H7z"/>
@@ -215,7 +215,7 @@
                         <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,18,0,0">
                             <TextBlock Text="{Binding MemLoadText}" FontFamily="Consolas" FontSize="27" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                             <TextBlock Text="RAM 使用率" FontSize="11" Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
-                            <Viewbox Width="48" Height="36" HorizontalAlignment="Center" Margin="0,16,0,0">
+                            <Viewbox Width="60" Height="45" HorizontalAlignment="Center" Margin="0,14,0,0">
                                 <Canvas Width="48" Height="32">
                                     <Path Stroke="{StaticResource Accent}" StrokeThickness="1.2" Fill="Transparent"
                                           Data="M10 4h22a2 2 0 0 1 2 2v8H8V6a2 2 0 0 1 2-2z M13 7h4v4h-4z M19 7h4v4h-4z M25 7h4v4h-4z M12 14v3 M16 14v3 M20 14v3 M24 14v3 M28 14v3"/>
