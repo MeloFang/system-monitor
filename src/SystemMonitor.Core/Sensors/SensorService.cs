@@ -112,11 +112,13 @@ public sealed class SensorService : IDisposable
                      ?? FirstOfType(cpu, SensorType.Temperature),
             CpuVoltage: Find(cpu, SensorType.Voltage, "Core (SVI2 TFN)"),
             CpuName: cpu?.Name ?? Formatting.Missing,
-            // GPU 频率优先走 NVML（NVIDIA 官方接口，比 LHM 更权威），读不到再回退 LHM
-            GpuClock: NvmlClockMHz(NvmlClockGraphics)
-                      ?? Find(gpu, SensorType.Clock, "GPU Core") ?? FirstCoreClock(gpu),
-            GpuMemClock: NvmlClockMHz(NvmlClockMem)
-                         ?? Find(gpu, SensorType.Clock, "GPU Memory"),
+            // GPU 频率优先走 NVML（NVIDIA 官方接口，比 LHM 更权威），读不到再回退 LHM。
+            // <100 MHz 一律视为休眠噪声（NVML 休眠时返回 1 而非 0），过滤后由 ViewModel 显示「待机」
+            GpuClock: ValidClock(NvmlClockMHz(NvmlClockGraphics))
+                      ?? ValidClock(Find(gpu, SensorType.Clock, "GPU Core"))
+                      ?? ValidClock(FirstCoreClock(gpu)),
+            GpuMemClock: ValidClock(NvmlClockMHz(NvmlClockMem))
+                         ?? ValidClock(Find(gpu, SensorType.Clock, "GPU Memory")),
             GpuLoad: Find(gpu, SensorType.Load, "GPU Core"),
             GpuTemp: Find(gpu, SensorType.Temperature, "GPU Core"),
             GpuVoltage: FirstOfType(gpu, SensorType.Voltage),
@@ -161,6 +163,15 @@ public sealed class SensorService : IDisposable
         }
         return null;
     }
+
+    /// <summary>
+    /// 频率有效性过滤：&lt;100 MHz 视为休眠噪声。
+    /// 实测 NVML 在 dGPU 休眠时返回 1（不是 0），LHM 偶尔也返回极小值；
+    /// 而真实的待机频率（核心 210 / 显存 405）都远高于 100，不会误伤。
+    /// 返回 null 后由 ViewModel 按负载状态显示「待机」。
+    /// </summary>
+    private static double? ValidClock(double? v)
+        => v is null || v < 100 ? null : v;
 
     private void SafeUpdate(IHardware hw)
     {
