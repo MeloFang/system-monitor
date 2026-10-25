@@ -1,0 +1,83 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using AsusMonitor.Core.Sensors;
+
+namespace AsusMonitor;
+
+/// <summary>界面数据。同时提供格式化文本与原始数值（数值供进度条使用）。</summary>
+public sealed class MainViewModel : INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void Raise([CallerMemberName] string? name = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    private void RaiseAll()
+    {
+        foreach (var name in new[]
+                 {
+                     nameof(CpuClockText), nameof(CpuLoadText), nameof(CpuLoadValue),
+                     nameof(CpuTempText), nameof(CpuVoltageText), nameof(CpuTempValue),
+                     nameof(GpuClockText), nameof(GpuMemClockText), nameof(GpuLoadText),
+                     nameof(GpuLoadValue), nameof(GpuTempText), nameof(GpuVoltageText),
+                     nameof(GpuPowerText), nameof(GpuTempValue),
+                     nameof(MemLoadText), nameof(MemLoadValue), nameof(MemUsedText),
+                     nameof(MemAvailableText), nameof(StorageLoadText), nameof(StorageLoadValue),
+                     nameof(MemClockText), nameof(UpdateTime),
+                 })
+            Raise(name);
+    }
+
+    private double? _cpuClock, _cpuLoad, _cpuTemp, _cpuVoltage;
+    private double? _gpuClock, _gpuMemClock, _gpuLoad, _gpuTemp, _gpuVoltage, _gpuPower;
+    private double? _memLoad, _memUsed, _memAvailable, _storageLoad;
+
+    public string CpuClockText => Formatting.Mhz(_cpuClock);
+    public string CpuLoadText => Formatting.Percent(_cpuLoad);
+    public double CpuLoadValue => _cpuLoad ?? 0;
+    public string CpuTempText => Formatting.Celsius(_cpuTemp);
+    public double CpuTempValue => _cpuTemp ?? 0;
+    public string CpuVoltageText => Formatting.Volt(_cpuVoltage);
+
+    public string GpuClockText => Formatting.Mhz(_gpuClock);
+    public string GpuMemClockText => Formatting.Mhz(_gpuMemClock);
+    public string GpuLoadText => Formatting.Percent(_gpuLoad);
+    public double GpuLoadValue => _gpuLoad ?? 0;
+    public string GpuTempText => Formatting.Celsius(_gpuTemp);
+    public double GpuTempValue => _gpuTemp ?? 0;
+    public string GpuVoltageText => Formatting.Volt(_gpuVoltage);
+    public string GpuPowerText => Formatting.Watt(_gpuPower);
+
+    public string MemLoadText => Formatting.Percent(_memLoad);
+    public double MemLoadValue => _memLoad ?? 0;
+    public string MemUsedText => Formatting.Gigabyte(_memUsed);
+    public string MemAvailableText => Formatting.Gigabyte(_memAvailable);
+    public string StorageLoadText => Formatting.Percent(_storageLoad);
+    public double StorageLoadValue => _storageLoad ?? 0;
+    public string MemClockText { get; private set; } = Formatting.Missing;
+    public string UpdateTime { get; private set; } = Formatting.Missing;
+
+    public void Apply(SensorSnapshot snap, DateTime stamp)
+    {
+        _cpuClock = snap.CpuClock;
+        _cpuLoad = snap.CpuLoad;
+        _cpuTemp = snap.CpuTemp;
+        _cpuVoltage = snap.CpuVoltage;
+
+        _gpuClock = snap.GpuClock;
+        _gpuMemClock = snap.GpuMemClock;
+        _gpuLoad = snap.GpuLoad;
+        _gpuTemp = snap.GpuTemp;
+        _gpuVoltage = snap.GpuVoltage;
+        _gpuPower = snap.GpuPower;
+
+        _memLoad = snap.MemLoad;
+        _memUsed = snap.MemUsed;
+        _memAvailable = snap.MemAvailable;
+        _storageLoad = snap.StorageLoad;
+
+        MemClockText = snap.MemClock;
+        UpdateTime = stamp.ToString("HH:mm:ss");
+        RaiseAll();
+    }
+}

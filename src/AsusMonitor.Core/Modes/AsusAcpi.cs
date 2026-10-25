@@ -13,8 +13,6 @@ namespace AsusMonitor.Core.Modes;
 public sealed class AsusAcpi : IDisposable
 {
     public const uint DevicePerformanceMode = 0x00120075;
-    public const uint DeviceCpuFan = 0x00110013;
-    public const uint DeviceGpuFan = 0x00110014;
 
     private const uint IoctlAtkacpi = 0x0022240C;
     private const uint MethodDsts = 0x53545344; // "DSTS"

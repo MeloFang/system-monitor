@@ -1,19 +1,17 @@
 using System.Management;
 using System.Runtime.InteropServices;
-using AsusMonitor.Core.Modes;
 using LibreHardwareMonitor.Hardware;
 
 namespace AsusMonitor.Core.Sensors;
 
 /// <summary>
 /// 采集层唯一入口。只读（AGENTS.md 纪律 #3）。
-/// 数据来源：LibreHardwareMonitor（CPU/GPU/内存）+ 华硕 WMI（风扇）+ NVML（GPU 功耗）。
-/// 任何单点失败降级为 "--"，不影响整体。
+/// 数据来源：LibreHardwareMonitor（CPU/GPU/内存）+ NVML（GPU 功耗）。
+/// 任何单点失败降级为 null，不影响整体。
 /// </summary>
 public sealed class SensorService : IDisposable
 {
     private readonly Computer _computer;
-    private readonly AsusAcpi _acpi = new();
     private readonly string _memClock;
     private IntPtr _nvmlDevice;
     private readonly bool _nvmlReady;
@@ -56,21 +54,23 @@ public sealed class SensorService : IDisposable
         IHardware? gpu = gpuNvidia ?? gpuAmd;
 
         return new SensorSnapshot(
-            CpuClock: Formatting.Mhz(CpuAverageClock(cpu)),
-            CpuLoad: Formatting.Percent(Find(cpu, SensorType.Load, "CPU Total")),
-            CpuTemp: Formatting.Celsius(Find(cpu, SensorType.Temperature, "Core (Tctl/Tdie)")
-                                        ?? FirstOfType(cpu, SensorType.Temperature)),
-            CpuVoltage: Formatting.Volt(Find(cpu, SensorType.Voltage, "Core (SVI2 TFN)")),
-            GpuClock: Formatting.Mhz(Find(gpu, SensorType.Clock, "GPU Core")),
-            GpuMemClock: Formatting.Mhz(Find(gpu, SensorType.Clock, "GPU Memory")),
-            GpuLoad: Formatting.Percent(Find(gpu, SensorType.Load, "GPU Core")),
-            GpuTemp: Formatting.Celsius(Find(gpu, SensorType.Temperature, "GPU Core")),
-            GpuVoltage: Formatting.Volt(FirstOfType(gpu, SensorType.Voltage)),
-            GpuPower: Formatting.Watt(NvmlPowerWatts()),
-            CpuFan: Formatting.Rpm(Formatting.FanRawToRpm(_acpi.DeviceGet(AsusAcpi.DeviceCpuFan))),
-            GpuFan: Formatting.Rpm(Formatting.FanRawToRpm(_acpi.DeviceGet(AsusAcpi.DeviceGpuFan))),
-            MemLoad: Formatting.Percent(Find(memory, SensorType.Load, "Memory")),
-            StorageLoad: Formatting.Percent(StorageUsedPercent()),
+            CpuClock: CpuAverageClock(cpu),
+            CpuLoad: Find(cpu, SensorType.Load, "CPU Total"),
+            CpuTemp: Find(cpu, SensorType.Temperature, "Core (Tctl/Tdie)")
+                     ?? FirstOfType(cpu, SensorType.Temperature),
+            CpuVoltage: Find(cpu, SensorType.Voltage, "Core (SVI2 TFN)"),
+            CpuName: cpu?.Name ?? Formatting.Missing,
+            GpuClock: Find(gpu, SensorType.Clock, "GPU Core"),
+            GpuMemClock: Find(gpu, SensorType.Clock, "GPU Memory"),
+            GpuLoad: Find(gpu, SensorType.Load, "GPU Core"),
+            GpuTemp: Find(gpu, SensorType.Temperature, "GPU Core"),
+            GpuVoltage: FirstOfType(gpu, SensorType.Voltage),
+            GpuPower: NvmlPowerWatts(),
+            GpuName: gpu?.Name ?? Formatting.Missing,
+            MemLoad: Find(memory, SensorType.Load, "Memory"),
+            MemUsed: Find(memory, SensorType.Data, "Memory Used"),
+            MemAvailable: Find(memory, SensorType.Data, "Memory Available"),
+            StorageLoad: StorageUsedPercent(),
             MemClock: _memClock
         );
     }
@@ -166,7 +166,6 @@ public sealed class SensorService : IDisposable
 
     public void Dispose()
     {
-        _acpi.Dispose();
         try { _computer.Close(); } catch { }
         if (_nvmlReady) { try { NvmlShutdown(); } catch { } }
     }

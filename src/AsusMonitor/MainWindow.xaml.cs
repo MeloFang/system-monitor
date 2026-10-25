@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using AsusMonitor.Core.Modes;
@@ -9,19 +10,24 @@ namespace AsusMonitor;
 
 public partial class MainWindow : Window
 {
-    private static readonly Brush BrushIdle = new SolidColorBrush(Color.FromRgb(0x2A, 0x2D, 0x31));
-    private static readonly Brush BrushActive = new SolidColorBrush(Color.FromRgb(0xD3, 0x31, 0x3D)); // AC 红
+    private static readonly Brush BrushIdleBg = new SolidColorBrush(Color.FromRgb(0x1A, 0x1D, 0x21));
+    private static readonly Brush BrushIdleBorder = new SolidColorBrush(Color.FromRgb(0x26, 0x2B, 0x31));
+    private static readonly Brush BrushActiveBg = new SolidColorBrush(Color.FromRgb(0xE5, 0x35, 0x3F)); // ROG 红
+    private static readonly Brush BrushActiveBorder = new SolidColorBrush(Color.FromRgb(0xE5, 0x35, 0x3F));
 
+    private readonly MainViewModel _vm = new();
     private readonly SensorService _sensors = new();
     private readonly ModeService _modes = new();
     private readonly DispatcherTimer _timer;
 
     // Windows 档不是 ACPI 模式：点击后记为会话状态，重启后按 ACPI 实际值高亮
     private PerformanceMode? _currentMode;
+    private bool _namesBound;
 
     public MainWindow()
     {
         InitializeComponent();
+        DataContext = _vm;
 
         Loaded += OnLoaded;
         Closed += (_, _) =>
@@ -37,11 +43,14 @@ public partial class MainWindow : Window
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (ModeService.IsArmouryCrateRunning())
-            AcWarning.Visibility = Visibility.Visible;
+        // 采集前先与 Armoury Crate 的关系说清楚
+        string acNote = ModeService.IsArmouryCrateRunning()
+            ? "Armoury Crate 运行中，切换模式可能被它重置"
+            : "未检测到 Armoury Crate 服务";
+        Subtitle.Text = acNote;
 
         if (!_modes.IsAcpiAvailable)
-            StatusBar.Text = "未检测到华硕系统控制接口（ATKACPI），模式切换不可用";
+            StatusText.Text = "未检测到华硕系统控制接口（ATKACPI），模式切换不可用";
 
         await RefreshAsync();
         _currentMode = _modes.GetCurrent();
@@ -53,26 +62,14 @@ public partial class MainWindow : Window
     {
         SensorSnapshot snap = await Task.Run(() => _sensors.Collect());
 
-        CpuClock.Text = snap.CpuClock;
-        CpuLoad.Text = snap.CpuLoad;
-        CpuTemp.Text = snap.CpuTemp;
-        CpuVolt.Text = snap.CpuVoltage;
+        if (!_namesBound)
+        {
+            CpuName.Text = snap.CpuName;
+            GpuName.Text = snap.GpuName;
+            _namesBound = true;
+        }
 
-        GpuClock.Text = snap.GpuClock;
-        GpuMemClock.Text = snap.GpuMemClock;
-        GpuLoad.Text = snap.GpuLoad;
-        GpuTemp.Text = snap.GpuTemp;
-        GpuVolt.Text = snap.GpuVoltage;
-        GpuPower.Text = snap.GpuPower;
-
-        CpuFan.Text = snap.CpuFan;
-        GpuFan.Text = snap.GpuFan;
-
-        MemLoad.Text = snap.MemLoad;
-        StorageLoad.Text = snap.StorageLoad;
-        MemClock.Text = snap.MemClock;
-
-        StatusBar.Text = $"更新于 {DateTime.Now:HH:mm:ss}";
+        _vm.Apply(snap, DateTime.Now);
     }
 
     private async void ModeButton_Click(object sender, RoutedEventArgs e)
@@ -97,20 +94,25 @@ public partial class MainWindow : Window
 
         if (readBack is null)
         {
-            StatusBar.Text = "模式切换失败（ACPI 接口不可用？）";
+            StatusText.Text = "模式切换失败（ACPI 接口不可用？）";
             return;
         }
 
         // Windows 档：ACPI 读回的是 Balanced，但 UI 高亮 Windows（会话状态）
         _currentMode = mode == PerformanceMode.Windows ? PerformanceMode.Windows : readBack;
         HighlightMode(_currentMode);
-        StatusBar.Text = $"已切换到 {PerformanceModeMap.DisplayName(mode)}";
+        StatusText.Text = $"已切换到 {PerformanceModeMap.DisplayName(mode)}";
     }
 
     private void HighlightMode(PerformanceMode? active)
     {
         foreach (var (btn, mode) in ModeButtons())
-            btn.Background = mode == active ? BrushActive : BrushIdle;
+        {
+            bool on = mode == active;
+            btn.Background = on ? BrushActiveBg : BrushIdleBg;
+            btn.BorderBrush = on ? BrushActiveBorder : BrushIdleBorder;
+            btn.FontWeight = on ? FontWeights.SemiBold : FontWeights.Normal;
+        }
     }
 
     private void SetButtonsEnabled(bool enabled)
@@ -127,4 +129,10 @@ public partial class MainWindow : Window
         yield return (BtnTurbo, PerformanceMode.Turbo);
         yield return (BtnManual, PerformanceMode.Manual);
     }
+
+    private void TitleBar_Drag(object sender, MouseButtonEventArgs e) => DragMove();
+
+    private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+    private void Close_Click(object sender, RoutedEventArgs e) => Close();
 }

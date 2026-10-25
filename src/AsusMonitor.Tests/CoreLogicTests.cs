@@ -14,7 +14,7 @@ public class FormattingTests
         Assert.Equal("--", Formatting.Celsius(null));
         Assert.Equal("--", Formatting.Volt(null));
         Assert.Equal("--", Formatting.Watt(null));
-        Assert.Equal("--", Formatting.Rpm(null));
+        Assert.Equal("--", Formatting.Gigabyte(null));
     }
 
     [Fact]
@@ -25,15 +25,7 @@ public class FormattingTests
         Assert.Equal("88.1 °C", Formatting.Celsius(88.125));
         Assert.Equal("1.550 V", Formatting.Volt(1.55));
         Assert.Equal("12.2 W", Formatting.Watt(12.18));
-        Assert.Equal("3000 RPM", Formatting.Rpm(3000));
-    }
-
-    [Fact]
-    public void Fan_Raw_Is_Rpm_Divided_By_100()
-    {
-        // G533QS 实测：原始值 30 对应 AC 显示的 ~3000 RPM
-        Assert.Equal(3000, Formatting.FanRawToRpm(30));
-        Assert.Null(Formatting.FanRawToRpm(null));
+        Assert.Equal("18.4 GB", Formatting.Gigabyte(18.44));
     }
 }
 
