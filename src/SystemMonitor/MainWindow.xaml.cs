@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using SystemMonitor.Core.Diagnostics;
 using SystemMonitor.Core.Sensors;
 using Microsoft.Win32;
 
@@ -15,9 +16,10 @@ public partial class MainWindow : Window
     private NotifyIcon? _tray;
     private bool _namesBound;
     private bool _closing;
+    private bool _initErrorShown;
 
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string AppName = "asus-monitor";
+    private const string AppName = "system-monitor";
 
     public MainWindow()
     {
@@ -29,6 +31,11 @@ public partial class MainWindow : Window
         {
             await RefreshAsync();
             _timer.Start();
+            if (!_initErrorShown && !_sensors.HardwareReady)
+            {
+                _initErrorShown = true;
+                ShowInitError();
+            }
         };
         Closed += (_, _) =>
         {
@@ -63,6 +70,8 @@ public partial class MainWindow : Window
             SetAutoStart(autoItem.Checked);
         };
         menu.Items.Add(autoItem);
+        menu.Items.Add("导出诊断报告", null, (_, _) => ExportDiagnostics());
+        menu.Items.Add("打开日志目录", null, (_, _) => OpenLogDir());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("退出", null, (_, _) => { _closing = true; Close(); });
         _tray.ContextMenuStrip = menu;
@@ -74,6 +83,53 @@ public partial class MainWindow : Window
         Show();
         WindowState = WindowState.Normal;
         Activate();
+    }
+
+    // ---------- 诊断与异常收集 ----------
+
+    private void ShowInitError()
+    {
+        try
+        {
+            System.Windows.MessageBox.Show(
+                "传感器驱动初始化失败，温度/频率等可能显示为 --。\n\n" + (_sensors.InitError ?? "") +
+                "\n\n常见解决：关闭 Windows「内核隔离/内存完整性」后重启，或将本程序加入杀毒软件(360/火鸦/Defender)白名单。\n\n日志目录：\n" + AppLog.LogDirectory +
+                "\n\n可用托盘菜单「导出诊断报告」把报告发回给开发者。",
+                "SystemMonitor", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch { }
+    }
+
+    private void ExportDiagnostics()
+    {
+        var path = AppLog.WriteDiagnosticReport(_sensors.DescribeStatus());
+        if (path is null)
+        {
+            System.Windows.MessageBox.Show("导出诊断报告失败。", "SystemMonitor", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+        var r = System.Windows.MessageBox.Show(
+            $"诊断报告已生成：\n{path}\n\n是否打开所在文件夹？",
+            "SystemMonitor", MessageBoxButton.YesNo, MessageBoxImage.Information);
+        if (r == MessageBoxResult.Yes) OpenFolder(path);
+    }
+
+    private void OpenLogDir()
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(AppLog.LogDirectory) { UseShellExecute = true });
+        }
+        catch { }
+    }
+
+    private static void OpenFolder(string filePath)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", $"/select,\"{filePath}\"") { UseShellExecute = true });
+        }
+        catch { }
     }
 
     private static Icon LoadAppIcon()
@@ -115,17 +171,27 @@ public partial class MainWindow : Window
 
     private async Task RefreshAsync()
     {
-        SensorSnapshot snap = await Task.Run(() => _sensors.Collect());
-
-        if (!_namesBound)
+        try
         {
-            CpuName.Text = snap.CpuName;
-            GpuName.Text = snap.GpuName;
-            _namesBound = true;
-        }
+            SensorSnapshot snap = await Task.Run(() => _sensors.Collect());
 
-        _vm.Apply(snap, DateTime.Now);
-        StatusText.Text = "采集中 · 1s/次";
+            if (!_namesBound)
+            {
+                CpuName.Text = snap.CpuName;
+                GpuName.Text = snap.GpuName;
+                _namesBound = true;
+            }
+
+            _vm.Apply(snap, DateTime.Now);
+            StatusText.Text = _sensors.HardwareReady
+                ? "采集中 · 1s/次"
+                : "⚠ 传感器初始化失败 — 托盘「导出诊断报告」查看原因";
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("RefreshAsync 失败", ex);
+            StatusText.Text = "⚠ 刷新出错，详见日志";
+        }
     }
 
     // ---------- 窗口控制 ----------

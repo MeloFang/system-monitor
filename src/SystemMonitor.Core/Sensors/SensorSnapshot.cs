@@ -26,4 +26,12 @@ public record SensorSnapshot(
     // 内存总量与频率为静态值，启动时读一次（总量取物理内存条容量之和，如 "32 GB"）
     string MemTotal,
     string MemClock
-);
+)
+{
+    /// <summary>全空快照：采集整体失败时返回，界面全部显示 "--"，绝不抛异常。</summary>
+    public static SensorSnapshot Empty { get; } = new(
+        CpuClock: null, CpuLoad: null, CpuTemp: null, CpuVoltage: null, CpuName: "--",
+        GpuClock: null, GpuMemClock: null, GpuLoad: null, GpuTemp: null, GpuVoltage: null, GpuPower: null, GpuName: "--",
+        MemLoad: null, MemUsed: null, StorageLoad: null,
+        MemTotal: "--", MemClock: "--");
+}

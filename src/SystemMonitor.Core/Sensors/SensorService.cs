@@ -1,6 +1,7 @@
 using System.Management;
 using System.Runtime.InteropServices;
 using LibreHardwareMonitor.Hardware;
+using SystemMonitor.Core.Diagnostics;
 
 namespace SystemMonitor.Core.Sensors;
 
@@ -16,6 +17,17 @@ public sealed class SensorService : IDisposable
     private readonly string _memTotal;
     private IntPtr _nvmlDevice;
     private readonly bool _nvmlReady;
+    private int _collectFailCount;
+    private int _updateFailLogged;
+
+    /// <summary>硬件监控(LHM)是否初始化成功。</summary>
+    public bool HardwareReady { get; private set; }
+
+    /// <summary>初始化失败的原因（成功为 null），供界面提示与诊断。</summary>
+    public string? InitError { get; private set; }
+
+    /// <summary>NVML(GPU 功耗)是否就绪。</summary>
+    public bool NvmlReady => _nvmlReady;
 
     public SensorService()
     {
@@ -30,14 +42,47 @@ public sealed class SensorService : IDisposable
             IsBatteryEnabled = false,
             IsNetworkEnabled = false,
         };
-        _computer.Open();
+        try
+        {
+            _computer.Open();
+            HardwareReady = true;
+            AppLog.Info("硬件监控(LibreHardwareMonitor)初始化成功");
+        }
+        catch (Exception ex)
+        {
+            HardwareReady = false;
+            InitError = "硬件监控驱动初始化失败，温度/频率等可能读不到。常见原因：Windows「内核隔离/内存完整性」拦截了 WinRing0 驱动，或杀毒软件(360/火鸦/Defender)拦截。";
+            AppLog.Error("Computer.Open() 失败：WinRing0 驱动无法加载（多为内核隔离/内存完整性或杀毒软件拦截）", ex);
+        }
         (_memTotal, _memClock) = ReadMemoryInfo();
         _nvmlReady = InitNvml();
+        AppLog.Info($"初始化完成：内存={_memTotal} {_memClock}；NVML(GPU功耗)={(_nvmlReady ? "就绪" : "不可用")}");
     }
 
-    /// <summary>采集一次快照。非线程安全，调用方保证串行。</summary>
+    /// <summary>采集一次快照。任何失败都降级为空快照并记录日志，绝不抛异常。</summary>
     public SensorSnapshot Collect()
     {
+        try
+        {
+            return CollectCore();
+        }
+        catch (Exception ex)
+        {
+            if (_collectFailCount++ == 0)
+                AppLog.Error("Collect() 采集失败（已降级为空快照；持续失败只记第一次）", ex);
+            return SensorSnapshot.Empty;
+        }
+    }
+
+    /// <summary>非线程安全，调用方保证串行。</summary>
+    private SensorSnapshot CollectCore()
+    {
+        // 如果硬件监控没初始化成功，直接返回空快照（避免访问 _computer.Hardware 崩溃）
+        if (!HardwareReady)
+        {
+            return SensorSnapshot.Empty;
+        }
+
         IHardware? cpu = null, gpuNvidia = null, gpuAmd = null, memory = null;
         foreach (IHardware hw in _computer.Hardware)
         {
@@ -76,9 +121,14 @@ public sealed class SensorService : IDisposable
         );
     }
 
-    private static void SafeUpdate(IHardware hw)
+    private void SafeUpdate(IHardware hw)
     {
-        try { hw.Update(); } catch { /* 单硬件失败不阻塞 */ }
+        try { hw.Update(); }
+        catch (Exception ex)
+        {
+            if (_updateFailLogged++ == 0)
+                AppLog.Warn($"硬件 Update 失败（{hw.Name}，只记第一次）", ex);
+        }
     }
 
     private static double? Find(IHardware? hw, SensorType type, string name)
@@ -168,6 +218,17 @@ public sealed class SensorService : IDisposable
             return NvmlGetPower(_nvmlDevice, out uint mw) == 0 ? mw / 1000.0 : null;
         }
         catch { return null; }
+    }
+
+    /// <summary>传感器/驱动状态摘要，供诊断报告与界面提示。</summary>
+    public string DescribeStatus()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append("硬件监控(LHM)初始化: ").AppendLine(HardwareReady ? "成功" : "失败");
+        if (!string.IsNullOrEmpty(InitError)) sb.Append("  原因: ").AppendLine(InitError);
+        sb.Append("NVML(GPU功耗): ").AppendLine(_nvmlReady ? "就绪" : "不可用(可能无NVIDIA独显)");
+        sb.Append("内存: ").Append(_memTotal).Append(" · ").AppendLine(_memClock);
+        return sb.ToString();
     }
 
     public void Dispose()
