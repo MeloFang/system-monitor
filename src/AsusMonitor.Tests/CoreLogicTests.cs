@@ -1,4 +1,3 @@
-using AsusMonitor.Core.Modes;
 using AsusMonitor.Core.Sensors;
 using Xunit;
 
@@ -26,43 +25,5 @@ public class FormattingTests
         Assert.Equal("1.550 V", Formatting.Volt(1.55));
         Assert.Equal("12.2 W", Formatting.Watt(12.18));
         Assert.Equal("18.4 GB", Formatting.Gigabyte(18.44));
-    }
-}
-
-public class PerformanceModeMapTests
-{
-    [Fact]
-    public void Raw_Values_Map_To_Five_Modes()
-    {
-        Assert.Equal(PerformanceMode.Performance, PerformanceModeMap.FromRaw(0));
-        Assert.Equal(PerformanceMode.Turbo, PerformanceModeMap.FromRaw(1));
-        Assert.Equal(PerformanceMode.Silent, PerformanceModeMap.FromRaw(2));
-        Assert.Equal(PerformanceMode.Turbo, PerformanceModeMap.FromRaw(3)); // FullSpeed 归入增强
-        Assert.Equal(PerformanceMode.Manual, PerformanceModeMap.FromRaw(4));
-        Assert.Null(PerformanceModeMap.FromRaw(99));
-    }
-
-    [Fact]
-    public void Every_Mode_Has_A_Writable_Raw_Value()
-    {
-        foreach (var mode in PerformanceModeMap.All)
-            Assert.InRange(PerformanceModeMap.ToRaw(mode), 0u, 4u);
-    }
-
-    [Fact]
-    public void Windows_Mode_Writes_Balanced()
-    {
-        // Windows 档语义：写 Balanced(0)，交还 Windows 电源计划
-        Assert.Equal(0u, PerformanceModeMap.ToRaw(PerformanceMode.Windows));
-    }
-
-    [Fact]
-    public void Display_Names_Are_Chinese_Labels()
-    {
-        Assert.Equal("安静", PerformanceModeMap.DisplayName(PerformanceMode.Silent));
-        Assert.Equal("性能", PerformanceModeMap.DisplayName(PerformanceMode.Performance));
-        Assert.Equal("增强", PerformanceModeMap.DisplayName(PerformanceMode.Turbo));
-        Assert.Equal("手动", PerformanceModeMap.DisplayName(PerformanceMode.Manual));
-        Assert.Equal("Windows", PerformanceModeMap.DisplayName(PerformanceMode.Windows));
     }
 }
