@@ -129,6 +129,29 @@ public sealed class SensorService : IDisposable
             if (_updateFailLogged++ == 0)
                 AppLog.Warn($"硬件 Update 失败（{hw.Name}，只记第一次）", ex);
         }
+
+        // 诊断日志：打印 GPU 的传感器名称（仅第一次采集）
+        if (hw.HardwareType == HardwareType.GpuNvidia && _updateFailLogged == 0)
+        {
+            var sb = new System.Text.StringBuilder();
+            int sensorCount = hw.Sensors.Count();
+            sb.Append("GPU 传感器列表：");
+            sb.Append(sensorCount);
+            sb.AppendLine(" 个");
+            foreach (var s in hw.Sensors)
+            {
+                if (s.SensorType == SensorType.Clock)
+                {
+                    sb.Append("  Clock: ");
+                    sb.Append(s.Name);
+                    sb.Append(" = ");
+                    sb.Append(s.Value);
+                    sb.AppendLine(" MHz");
+                }
+            }
+            AppLog.Info(sb.ToString().TrimEnd());
+            _updateFailLogged = 1; // 只打一次
+        }
     }
 
     private static double? Find(IHardware? hw, SensorType type, string name)
