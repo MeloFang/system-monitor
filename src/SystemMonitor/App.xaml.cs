@@ -16,15 +16,18 @@ public partial class App : System.Windows.Application
     public App()
     {
         // ========== 单实例检查（放在最前面，防止多开）==========
-        _mutex = new Mutex(true, MutexName, out bool createdNew);
-        if (!createdNew)
+        // 尝试打开已存在的 Mutex
+        if (Mutex.TryOpenExisting(MutexName, out _mutex))
         {
-            // 已有实例在运行 → 找到旧窗口并激活，然后退出
+            // Mutex 存在 → 已有实例在运行
             AppLog.Info("检测到已有实例，尝试激活旧窗口...");
             ActivateExistingInstance();
             Environment.Exit(0);
             return;
         }
+
+        // Mutex 不存在 → 创建并拥有它
+        _mutex = new Mutex(true, MutexName);
 
         // ========== 全局异常收集 ==========
         DispatcherUnhandledException += OnDispatcherUnhandledException;
@@ -49,7 +52,7 @@ public partial class App : System.Windows.Application
                 if (p.Id == currentPid) continue;
 
                 // 找到旧进程，尝试激活其窗口
-                AppLog.Info($"发现旧实例 (PID={p.Id})，发送激活消息");
+                AppLog.Info($"发现旧实例 (PID={p.Id})");
 
                 // 简单做法：直接弹窗告知用户
                 System.Windows.MessageBox.Show(
@@ -100,8 +103,8 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
-        _mutex?.ReleaseMutex();
-        _mutex?.Dispose();
+        try { _mutex?.ReleaseMutex(); } catch { }
+        try { _mutex?.Dispose(); } catch { }
         base.OnExit(e);
     }
 }
