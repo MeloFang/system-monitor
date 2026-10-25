@@ -191,8 +191,8 @@
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="频率 / 显存" Style="{StaticResource Label}"/>
-                                <TextBlock Grid.Column="1" Style="{StaticResource Value}">
-                                    <Run Text="{Binding GpuClockText, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding GpuMemClockText, Mode=OneWay}"/>
+                                <TextBlock Grid.Column="1" Style="{StaticResource Value}" ToolTip="单位 MHz（核心频率 / 显存频率）">
+                                    <Run Text="{Binding GpuClockText, Mode=OneWay}"/><Run Text="/"/><Run Text="{Binding GpuMemClockText, Mode=OneWay}"/>
                                 </TextBlock>
                             </Grid>
                         </StackPanel>

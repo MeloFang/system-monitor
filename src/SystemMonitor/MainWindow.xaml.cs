@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Threading;
@@ -17,6 +18,7 @@ public partial class MainWindow : Window
     private bool _namesBound;
     private bool _closing;
     private bool _initErrorShown;
+    private int _uiLogCount;
 
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private const string AppName = "system-monitor";
@@ -222,6 +224,12 @@ public partial class MainWindow : Window
             StatusText.Text = _sensors.HardwareReady
                 ? "采集中 · 1s/次"
                 : "⚠ 传感器初始化失败 — 托盘「导出诊断报告」查看原因";
+
+            // 诊断：UI 层最终输出（与 Core 层决策日志对照，定位显示链断点）
+            if (++_uiLogCount % 30 == 1)
+                AppLog.Info(string.Format(CultureInfo.InvariantCulture,
+                    "UI输出: GpuClockText={0} GpuMemClockText={1} snap.GpuClock={2} snap.GpuLoad={3}",
+                    _vm.GpuClockText, _vm.GpuMemClockText, snap.GpuClock, snap.GpuLoad));
         }
         catch (Exception ex)
         {
