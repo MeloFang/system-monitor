@@ -295,9 +295,10 @@ public sealed class SensorService : IDisposable
         catch { return null; }
     }
 
-    // NVML 时钟类型：1=Graphics(核心)，2=SM，3=Mem(显存)
-    private const int NvmlClockGraphics = 1;
-    private const int NvmlClockMem = 3;
+    // NVML 时钟类型（nvml.h 的 nvmlClockType_t）：0=Graphics(核心)，1=SM，2=Mem(显存)，3=Video
+    // 注意：GRAPHICS 是 0 不是 1！之前写成 1/3 实际读到的是 SM 和 VIDEO 时钟
+    private const int NvmlClockGraphics = 0;
+    private const int NvmlClockMem = 2;
 
     /// <summary>NVML 读当前时钟频率(MHz)。NVIDIA 官方接口，权威度高于 LHM。</summary>
     private double? NvmlClockMHz(int clockType)
