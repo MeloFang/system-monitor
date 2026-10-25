@@ -82,8 +82,17 @@ public static class AppLog
         }
         catch { }
 
+        // 版本从程序集读（csproj 的 <Version>），避免日志里写死旧版本号
+        string ver = "未知";
+        try
+        {
+            var asmVer = typeof(AppLog).Assembly.GetName().Version;
+            if (asmVer is not null) ver = $"{asmVer.Major}.{asmVer.Minor}.{asmVer.Build}";
+        }
+        catch { }
+
         var sb = new StringBuilder();
-        sb.AppendLine("==== SystemMonitor 诊断快照 v1.0.1 ====");
+        sb.AppendLine($"==== SystemMonitor 诊断快照 v{ver} ====");
         sb.AppendLine("时间: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         sb.AppendLine("OS: " + RuntimeInformation.OSDescription);
         sb.AppendLine("OS版本(Environment.OSVersion): " + Environment.OSVersion.Version);
