@@ -10,39 +10,48 @@ namespace SystemMonitor;
 /// </summary>
 public partial class App : System.Windows.Application
 {
-    private static readonly string MutexName = "Global\\SystemMonitor-SingleInstance";
+    // 用 Local\ 前缀：只需当前用户会话可见，不需要 SeCreateGlobalPrivilege 特权。
+    // （旧的 Global\ 前缀在非特权上下文创建会抛 UnauthorizedAccessException，导致启动即崩。）
+    private static readonly string MutexName = "Local\\SystemMonitor-SingleInstance";
     private static Mutex? _mutex;
 
     public App()
     {
         // ========== 单实例检查（放在最前面，防止多开）==========
-        // 尝试打开已存在的 Mutex
-        bool createdNew;
-        _mutex = new Mutex(false, MutexName, out createdNew);
-        
-        if (!createdNew)
+        // 注意：单实例是"锦上添花"，任何失败都必须降级为"照常启动"，绝不能阻止程序打开
+        try
         {
-            // Mutex 已存在 → 已有实例在运行
-            AppLog.Info("检测到已有实例，弹窗提示...");
-            
-            // 延迟弹窗，确保 UI 初始化完成
-            Dispatcher.BeginInvoke(new Action(() =>
+            bool createdNew;
+            _mutex = new Mutex(false, MutexName, out createdNew);
+
+            if (!createdNew)
             {
+                // Mutex 已存在 → 已有实例在运行
+                AppLog.Info("检测到已有实例，弹窗提示后退出...");
+
+                // 同步弹窗（MessageBox 是 Win32 弹窗，构造函数阶段即可显示）
                 System.Windows.MessageBox.Show(
                     "SystemMonitor 已经在运行中。\n\n请检查系统托盘（右下角），或关闭旧实例后重新启动。",
                     "SystemMonitor",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
-            }), System.Windows.Threading.DispatcherPriority.Background);
-            
-            // 不持有 Mutex，直接退出
-            _mutex.Dispose();
-            _mutex = null;
-            return;
-        }
 
-        // 成功创建 Mutex → 拥有它
-        _mutex.ReleaseMutex();
+                // 不持有 Mutex，关闭本实例（真正的退出，避免开第二个窗口）
+                _mutex.Dispose();
+                _mutex = null;
+                Shutdown();
+                return;
+            }
+
+            // 成功创建 Mutex
+            AppLog.Info("单实例 Mutex 创建成功（本实例为主实例）");
+        }
+        catch (Exception ex)
+        {
+            // Mutex 失败（权限不足等）→ 降级：不做单实例检查，照常启动
+            _mutex = null;
+            AppLog.Warn("单实例 Mutex 不可用，已降级为允许多开（不影响主功能）", ex);
+        }
 
         // ========== 全局异常收集 ==========
         DispatcherUnhandledException += OnDispatcherUnhandledException;
