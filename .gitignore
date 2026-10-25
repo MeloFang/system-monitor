@@ -2,6 +2,7 @@ bin/
 obj/
 out/
 dist/
+dist-release/
 .vs/
 *.user
 probe-output.txt

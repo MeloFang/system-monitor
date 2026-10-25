@@ -13,10 +13,12 @@
 
 ## 运行
 
+**嫌编译麻烦？** 直接到 [Releases](https://github.com/MeloFang/system-monitor/releases) 下载自包含版 `SystemMonitor.exe`（已内嵌 .NET 运行时，无需安装 .NET，双击即用）。想自行构建则往下看。
+
 双击 `SystemMonitor.exe` 即可，无需安装。
 
 - **首次会弹 UAC，必须点"是"**：温度等传感器读取需要管理员权限（LibreHardwareMonitor 的内核驱动）
-- 需要 **.NET 8 运行时**（本机已装）
+- 自行构建默认是**框架依赖版**，需要 **.NET 8 桌面运行时**（Release 的自包含版则不需要）
 - 点右上角 `—` 最小化到托盘；点 `✕` 也是缩到托盘（继续后台采集），要彻底退出用托盘菜单的"退出"
 
 ## 托盘菜单
@@ -49,6 +51,8 @@
 **某几项显示 `--`**：该传感器在本机型未被固件暴露，属正常降级，其余项不受影响。
 
 **非华硕电脑能用吗**：能。本项目所有数据均来自 LibreHardwareMonitor / NVIDIA NVML / Windows WMI / .NET DriveInfo，与华硕驱动（ATKACPI）无关；当初拆自 Armoury Crate 的风扇读数与性能模式切换已被移除，因此不再绑定华硕硬件。仅当机器没有 NVIDIA 独显时，GPU 功耗一栏留空（其余 GPU 指标仍由 LibreHardwareMonitor 提供）。
+
+**只有集显/核显的机器能用吗**：能跑，CPU/内存/存储都正常。GPU 一栏取决于集显品牌——LibreHardwareMonitor 只支持 NVIDIA（NVAPI）与 AMD（ADL）：AMD APU 的集显有可能被识别并显示部分指标；而 **Intel 核显（UHD/Iris）不被支持，GPU 一栏会显示 `--`、型号也显示 `--`**，属正常降级，不影响其他卡片。
 
 **温度读不到**：确认已用管理员权限运行。
 
