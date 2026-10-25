@@ -22,7 +22,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                      nameof(GpuLoadValue), nameof(GpuTempText), nameof(GpuVoltageText),
                      nameof(GpuPowerText), nameof(GpuTempValue),
                      nameof(MemLoadText), nameof(MemLoadValue), nameof(MemUsedText),
-                     nameof(MemAvailableText), nameof(StorageLoadText), nameof(StorageLoadValue),
+                     nameof(MemTotalText), nameof(StorageLoadText), nameof(StorageLoadValue),
                      nameof(MemClockText), nameof(UpdateTime),
                  })
             Raise(name);
@@ -30,7 +30,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     private double? _cpuClock, _cpuLoad, _cpuTemp, _cpuVoltage;
     private double? _gpuClock, _gpuMemClock, _gpuLoad, _gpuTemp, _gpuVoltage, _gpuPower;
-    private double? _memLoad, _memUsed, _memAvailable, _storageLoad;
+    private double? _memLoad, _memUsed, _storageLoad;
 
     public string CpuClockText => Formatting.Mhz(_cpuClock);
     public string CpuLoadText => Formatting.Percent(_cpuLoad);
@@ -51,7 +51,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public string MemLoadText => Formatting.Percent(_memLoad);
     public double MemLoadValue => _memLoad ?? 0;
     public string MemUsedText => Formatting.Gigabyte(_memUsed);
-    public string MemAvailableText => Formatting.Gigabyte(_memAvailable);
+    public string MemTotalText { get; private set; } = Formatting.Missing;
     public string StorageLoadText => Formatting.Percent(_storageLoad);
     public double StorageLoadValue => _storageLoad ?? 0;
     public string MemClockText { get; private set; } = Formatting.Missing;
@@ -73,9 +73,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         _memLoad = snap.MemLoad;
         _memUsed = snap.MemUsed;
-        _memAvailable = snap.MemAvailable;
         _storageLoad = snap.StorageLoad;
 
+        MemTotalText = snap.MemTotal;
         MemClockText = snap.MemClock;
         UpdateTime = stamp.ToString("HH:mm:ss");
         RaiseAll();

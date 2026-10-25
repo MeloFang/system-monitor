@@ -22,8 +22,8 @@ public record SensorSnapshot(
     // 内存
     double? MemLoad,
     double? MemUsed,
-    double? MemAvailable,
     double? StorageLoad,
-    // 内存频率为静态值，启动时读一次
+    // 内存总量与频率为静态值，启动时读一次（总量取物理内存条容量之和，如 "32 GB"）
+    string MemTotal,
     string MemClock
 );

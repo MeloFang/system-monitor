@@ -13,6 +13,7 @@ public sealed class SensorService : IDisposable
 {
     private readonly Computer _computer;
     private readonly string _memClock;
+    private readonly string _memTotal;
     private IntPtr _nvmlDevice;
     private readonly bool _nvmlReady;
 
@@ -30,7 +31,7 @@ public sealed class SensorService : IDisposable
             IsNetworkEnabled = false,
         };
         _computer.Open();
-        _memClock = ReadMemoryClock();
+        (_memTotal, _memClock) = ReadMemoryInfo();
         _nvmlReady = InitNvml();
     }
 
@@ -69,8 +70,8 @@ public sealed class SensorService : IDisposable
             GpuName: gpu?.Name ?? Formatting.Missing,
             MemLoad: Find(memory, SensorType.Load, "Memory"),
             MemUsed: Find(memory, SensorType.Data, "Memory Used"),
-            MemAvailable: Find(memory, SensorType.Data, "Memory Available"),
             StorageLoad: StorageUsedPercent(),
+            MemTotal: _memTotal,
             MemClock: _memClock
         );
     }
@@ -125,21 +126,26 @@ public sealed class SensorService : IDisposable
         catch { return null; }
     }
 
-    private static string ReadMemoryClock()
+    /// <summary>内存总量（物理条容量之和）与频率，一次 WMI 查询。</summary>
+    private static (string Total, string Clock) ReadMemoryInfo()
     {
         try
         {
             using var searcher = new ManagementObjectSearcher(
-                "SELECT ConfiguredClockSpeed FROM Win32_PhysicalMemory");
-            int max = 0;
+                "SELECT Capacity, ConfiguredClockSpeed FROM Win32_PhysicalMemory");
+            long totalBytes = 0;
+            int maxClock = 0;
             foreach (ManagementObject obj in searcher.Get())
             {
-                if (obj["ConfiguredClockSpeed"] is uint speed && speed > max)
-                    max = (int)speed;
+                if (obj["Capacity"] is ulong cap) totalBytes += (long)cap;
+                if (obj["ConfiguredClockSpeed"] is uint speed && speed > maxClock)
+                    maxClock = (int)speed;
             }
-            return max > 0 ? $"{max} MHz" : Formatting.Missing;
+            string total = totalBytes > 0 ? $"{totalBytes / 1024 / 1024 / 1024} GB" : Formatting.Missing;
+            string clock = maxClock > 0 ? $"{maxClock} MHz" : Formatting.Missing;
+            return (total, clock);
         }
-        catch { return Formatting.Missing; }
+        catch { return (Formatting.Missing, Formatting.Missing); }
     }
 
     // ---------- NVML ----------

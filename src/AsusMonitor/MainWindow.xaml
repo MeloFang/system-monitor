@@ -1,8 +1,7 @@
 <Window x:Class="AsusMonitor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:conv="clr-namespace:AsusMonitor.Converters"
-        Width="720" Height="440"
+        Width="720" Height="460"
         WindowStyle="None" ResizeMode="NoResize"
         Background="#FF0C0E11"
         FontFamily="Microsoft YaHei UI"
@@ -10,19 +9,18 @@
         SnapsToDevicePixels="True">
 
     <Window.Resources>
-        <conv:PercentToDashConverter x:Key="Dash"/>
         <SolidColorBrush x:Key="Accent" Color="#FFE5353F"/>
         <SolidColorBrush x:Key="TextDim" Color="#FF7D838C"/>
 
         <Style x:Key="Value" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#FFEDEEF0"/>
-            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontFamily" Value="Consolas"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
         </Style>
         <Style x:Key="Label" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="11.5"/>
         </Style>
 
         <Style x:Key="Bar" TargetType="ProgressBar">
@@ -86,7 +84,7 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Rectangle Width="7" Height="17" RadiusX="2" RadiusY="2" Fill="{StaticResource Accent}" Margin="0,0,10,0"/>
                     <TextBlock Text="asus-monitor" FontSize="15" FontWeight="SemiBold"/>
-                    <TextBlock Text="ROG Strix · 硬件监控" Margin="12,2,0,0" FontSize="11.5" Foreground="{StaticResource TextDim}"/>
+                    <TextBlock Text="ROG Strix · 硬件监控" Margin="12,2,0,0" FontSize="11" Foreground="{StaticResource TextDim}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button Style="{StaticResource ChromeBtn}" Content="—" Click="Minimize_Click"/>
@@ -94,45 +92,43 @@
                 </StackPanel>
             </Grid>
 
-            <!-- 三张卡片：圆环 + 指标 -->
+            <!-- 三张卡片 -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
                 <!-- CPU -->
-                <Border Grid.Column="0" Background="#FF14171B" CornerRadius="16" BorderBrush="#FF1F2329" BorderThickness="1" Padding="16,12" Margin="0,0,9,0">
+                <Border Grid.Column="0" Background="#FF14171B" CornerRadius="16" BorderBrush="#FF1F2329" BorderThickness="1" Padding="16,12" Margin="0,0,7,0">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/><RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0">
-                            <TextBlock Text="CPU" FontSize="14" FontWeight="SemiBold"/>
-                            <TextBlock x:Name="CpuName" FontSize="11" Foreground="{StaticResource TextDim}" Margin="0,3,0,0" Text="—"
-                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="CPU" FontSize="13.5" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="CpuName" FontSize="11" Foreground="{StaticResource TextDim}" Margin="0,2,0,0"
+                                       TextWrapping="Wrap" LineHeight="14" Text="—"/>
                         </StackPanel>
 
-                        <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,8">
-                            <Ellipse Width="92" Height="92" Stroke="#FF22262B" StrokeThickness="6"/>
-                            <Ellipse Width="92" Height="92" Stroke="{StaticResource Accent}" StrokeThickness="6"
-                                     StrokeDashCap="Round" RenderTransformOrigin="0.5,0.5"
-                                     StrokeDashArray="{Binding CpuTempValue, Mode=OneWay, Converter={StaticResource Dash}, ConverterParameter=270}">
-                                <Ellipse.RenderTransform><RotateTransform Angle="-90"/></Ellipse.RenderTransform>
-                            </Ellipse>
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding CpuTempText}" FontFamily="Consolas" FontSize="21" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"/>
-                                <TextBlock Text="温度" FontSize="11" Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
-                            </StackPanel>
-                        </Grid>
+                        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CpuTempText}" FontFamily="Consolas" FontSize="26" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="温度" FontSize="11" Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        </StackPanel>
 
-                        <StackPanel Grid.Row="2">
+                        <Viewbox Grid.Row="2" Width="26" Height="26" HorizontalAlignment="Center" Margin="0,0,0,8">
+                            <Path Stroke="{StaticResource Accent}" StrokeThickness="1.2" Fill="Transparent"
+                                  Data="M6 6h12v12H6z M10 10h4v4h-4z M9 3v3 M12 3v3 M15 3v3 M9 18v3 M12 18v3 M15 18v3 M3 9h3 M3 12h3 M3 15h3 M18 9h3 M18 12h3 M18 15h3"/>
+                        </Viewbox>
+
+                        <StackPanel Grid.Row="3">
                             <Grid Margin="0,0,0,4">
                                 <TextBlock Text="使用率" Style="{StaticResource Label}"/>
                                 <TextBlock Text="{Binding CpuLoadText}" Style="{StaticResource Value}"/>
                             </Grid>
-                            <ProgressBar Style="{StaticResource Bar}" Value="{Binding CpuLoadValue, Mode=OneWay}" Margin="0,0,0,12"/>
-                            <Grid Margin="0,0,0,7">
+                            <ProgressBar Style="{StaticResource Bar}" Value="{Binding CpuLoadValue, Mode=OneWay}" Margin="0,0,0,10"/>
+                            <Grid Margin="0,0,0,6">
                                 <TextBlock Text="频率" Style="{StaticResource Label}"/>
                                 <TextBlock Text="{Binding CpuClockText}" Style="{StaticResource Value}"/>
                             </Grid>
@@ -145,38 +141,36 @@
                 </Border>
 
                 <!-- GPU -->
-                <Border Grid.Column="1" Background="#FF14171B" CornerRadius="16" BorderBrush="#FF1F2329" BorderThickness="1" Padding="16,12" Margin="9,0">
+                <Border Grid.Column="1" Background="#FF14171B" CornerRadius="16" BorderBrush="#FF1F2329" BorderThickness="1" Padding="16,12" Margin="7,0">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/><RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0">
-                            <TextBlock Text="GPU" FontSize="14" FontWeight="SemiBold"/>
-                            <TextBlock x:Name="GpuName" FontSize="11" Foreground="{StaticResource TextDim}" Margin="0,3,0,0" Text="—"
-                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="GPU" FontSize="13.5" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="GpuName" FontSize="11" Foreground="{StaticResource TextDim}" Margin="0,2,0,0"
+                                       TextWrapping="Wrap" LineHeight="14" Text="—"/>
                         </StackPanel>
 
-                        <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,8">
-                            <Ellipse Width="92" Height="92" Stroke="#FF22262B" StrokeThickness="6"/>
-                            <Ellipse Width="92" Height="92" Stroke="{StaticResource Accent}" StrokeThickness="6"
-                                     StrokeDashCap="Round" RenderTransformOrigin="0.5,0.5"
-                                     StrokeDashArray="{Binding GpuTempValue, Mode=OneWay, Converter={StaticResource Dash}, ConverterParameter=270}">
-                                <Ellipse.RenderTransform><RotateTransform Angle="-90"/></Ellipse.RenderTransform>
-                            </Ellipse>
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding GpuTempText}" FontFamily="Consolas" FontSize="21" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"/>
-                                <TextBlock Text="温度" FontSize="11" Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
-                            </StackPanel>
-                        </Grid>
+                        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding GpuTempText}" FontFamily="Consolas" FontSize="26" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="温度" FontSize="11" Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        </StackPanel>
 
-                        <StackPanel Grid.Row="2">
+                        <Viewbox Grid.Row="2" Width="28" Height="28" HorizontalAlignment="Center" Margin="0,0,0,8">
+                            <Path Stroke="{StaticResource Accent}" StrokeThickness="1.2" Fill="Transparent"
+                                  Data="M2 8h16v8H2z M8 12 m-2.4 0 a2.4 2.4 0 1 0 4.8 0 a2.4 2.4 0 1 0 -4.8 0 M18 10.5h3 M18 13.5h3"/>
+                        </Viewbox>
+
+                        <StackPanel Grid.Row="3">
                             <Grid Margin="0,0,0,4">
                                 <TextBlock Text="使用率" Style="{StaticResource Label}"/>
                                 <TextBlock Text="{Binding GpuLoadText}" Style="{StaticResource Value}"/>
                             </Grid>
-                            <ProgressBar Style="{StaticResource Bar}" Value="{Binding GpuLoadValue, Mode=OneWay}" Margin="0,0,0,12"/>
-                            <Grid Margin="0,0,0,7">
+                            <ProgressBar Style="{StaticResource Bar}" Value="{Binding GpuLoadValue, Mode=OneWay}" Margin="0,0,0,10"/>
+                            <Grid Margin="0,0,0,6">
                                 <TextBlock Text="频率 / 显存" Style="{StaticResource Label}"/>
                                 <TextBlock Style="{StaticResource Value}">
                                     <Run Text="{Binding GpuClockText, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding GpuMemClockText, Mode=OneWay}"/>
@@ -191,35 +185,35 @@
                 </Border>
 
                 <!-- 内存 -->
-                <Border Grid.Column="2" Background="#FF14171B" CornerRadius="16" BorderBrush="#FF1F2329" BorderThickness="1" Padding="16,12" Margin="9,0,0,0">
+                <Border Grid.Column="2" Background="#FF14171B" CornerRadius="16" BorderBrush="#FF1F2329" BorderThickness="1" Padding="16,12" Margin="7,0,0,0">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/><RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0">
-                            <TextBlock Text="内存" FontSize="14" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding MemClockText}" FontSize="11" Foreground="{StaticResource TextDim}" Margin="0,3,0,0"/>
+                            <TextBlock Text="内存" FontSize="13.5" FontWeight="SemiBold"/>
+                            <TextBlock FontSize="11" Foreground="{StaticResource TextDim}" Margin="0,2,0,0">
+                                <Run Text="{Binding MemTotalText, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding MemClockText, Mode=OneWay}"/>
+                            </TextBlock>
                         </StackPanel>
 
-                        <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,8">
-                            <Ellipse Width="92" Height="92" Stroke="#FF22262B" StrokeThickness="6"/>
-                            <Ellipse Width="92" Height="92" Stroke="{StaticResource Accent}" StrokeThickness="6"
-                                     StrokeDashCap="Round" RenderTransformOrigin="0.5,0.5"
-                                     StrokeDashArray="{Binding MemLoadValue, Mode=OneWay, Converter={StaticResource Dash}, ConverterParameter=270}">
-                                <Ellipse.RenderTransform><RotateTransform Angle="-90"/></Ellipse.RenderTransform>
-                            </Ellipse>
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding MemLoadText}" FontFamily="Consolas" FontSize="21" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"/>
-                                <TextBlock Text="RAM 使用率" FontSize="11" Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
-                            </StackPanel>
-                        </Grid>
+                        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding MemLoadText}" FontFamily="Consolas" FontSize="26" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="RAM 使用率" FontSize="11" Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,1,0,0"/>
+                        </StackPanel>
 
-                        <StackPanel Grid.Row="2">
-                            <Grid Margin="0,0,0,7">
-                                <TextBlock Text="已用 / 可用" Style="{StaticResource Label}"/>
+                        <Viewbox Grid.Row="2" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,0,0,8">
+                            <Path Stroke="{StaticResource Accent}" StrokeThickness="1.2" Fill="Transparent"
+                                  Data="M2 9h20v7H2z M5 11h3v3H5z M10.5 11h3v3h-3z M16 11h3v3h-3z M11 16v2.5h2V16"/>
+                        </Viewbox>
+
+                        <StackPanel Grid.Row="3">
+                            <Grid Margin="0,0,0,6">
+                                <TextBlock Text="已用 / 共" Style="{StaticResource Label}"/>
                                 <TextBlock Style="{StaticResource Value}">
-                                    <Run Text="{Binding MemUsedText, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding MemAvailableText, Mode=OneWay}"/>
+                                    <Run Text="{Binding MemUsedText, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding MemTotalText, Mode=OneWay}"/>
                                 </TextBlock>
                             </Grid>
                             <Grid Margin="0,0,0,4">
