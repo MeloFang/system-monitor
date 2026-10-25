@@ -5,3 +5,5 @@ dist/
 .vs/
 *.user
 probe-output.txt
+soak.log
+app-run.log
