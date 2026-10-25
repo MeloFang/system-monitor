@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Management;
 using System.Runtime.InteropServices;
 using LibreHardwareMonitor.Hardware;
@@ -20,6 +21,7 @@ public sealed class SensorService : IDisposable
     private int _collectFailCount;
     private int _updateFailLogged;
     private int _clockNullLogged;
+    private int _clockDecisionLogged;
 
     /// <summary>硬件监控(LHM)是否初始化成功。</summary>
     public bool HardwareReady { get; private set; }
@@ -145,6 +147,16 @@ public sealed class SensorService : IDisposable
                 }
             }
             AppLog.Warn(sb.ToString());
+        }
+
+        // 诊断：频率决策链（启动首采必记 + 每 60 次采集记一次），看清每个来源的原始值
+        if (_clockDecisionLogged++ % 60 == 0)
+        {
+            AppLog.Info(string.Format(CultureInfo.InvariantCulture,
+                "频率决策: NVML核心={0} LHM核心={1} NVML显存={2} LHM显存={3} => 最终核心={4} 最终显存={5} 负载={6}",
+                NvmlClockMHz(NvmlClockGraphics), Find(gpu, SensorType.Clock, "GPU Core"),
+                NvmlClockMHz(NvmlClockMem), Find(gpu, SensorType.Clock, "GPU Memory"),
+                snap.GpuClock, snap.GpuMemClock, snap.GpuLoad));
         }
 
         return snap;

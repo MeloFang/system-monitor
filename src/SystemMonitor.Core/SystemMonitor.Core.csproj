@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <!-- 版本号：日志/诊断报告会读取它，发版时只需改这里 -->
-    <Version>1.0.14</Version>
+    <Version>1.0.16</Version>
   </PropertyGroup>
 
   <ItemGroup>
