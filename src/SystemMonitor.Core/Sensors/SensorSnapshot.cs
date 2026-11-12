@@ -18,6 +18,8 @@ public record SensorSnapshot(
     double? GpuTemp,
     double? GpuVoltage,
     double? GpuPower,   // TGP，NVML
+    double? GpuMemUsed,  // 设备级显存占用 GB，NVML（含全部进程与桌面占用）
+    double? GpuMemTotal, // 设备级显存总量 GB，NVML
     string GpuName,
     // 内存
     double? MemLoad,
@@ -31,7 +33,8 @@ public record SensorSnapshot(
     /// <summary>全空快照：采集整体失败时返回，界面全部显示 "--"，绝不抛异常。</summary>
     public static SensorSnapshot Empty { get; } = new(
         CpuClock: null, CpuLoad: null, CpuTemp: null, CpuVoltage: null, CpuName: "--",
-        GpuClock: null, GpuMemClock: null, GpuLoad: null, GpuTemp: null, GpuVoltage: null, GpuPower: null, GpuName: "--",
+        GpuClock: null, GpuMemClock: null, GpuLoad: null, GpuTemp: null, GpuVoltage: null, GpuPower: null,
+        GpuMemUsed: null, GpuMemTotal: null, GpuName: "--",
         MemLoad: null, MemUsed: null, StorageLoad: null,
         MemTotal: "--", MemClock: "--");
 }

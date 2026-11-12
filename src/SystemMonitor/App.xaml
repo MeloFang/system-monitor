@@ -2,4 +2,313 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!-- 色板与原型 :root 逐字一致 -->
+        <SolidColorBrush x:Key="Bg0" Color="#06080c"/>
+        <SolidColorBrush x:Key="Bg" Color="#0a0e15"/>
+        <SolidColorBrush x:Key="Surface" Color="#10161f"/>
+        <SolidColorBrush x:Key="Surface2" Color="#151d29"/>
+        <SolidColorBrush x:Key="Overlay" Color="#1b2534"/>
+        <SolidColorBrush x:Key="Line" Color="#21262f"/>
+        <SolidColorBrush x:Key="Line2" Color="#2c323a"/>
+        <SolidColorBrush x:Key="Text" Color="#e9eef5"/>
+        <SolidColorBrush x:Key="Dim" Color="#9aa7b8"/>
+        <SolidColorBrush x:Key="Faint" Color="#5d6c80"/>
+        <SolidColorBrush x:Key="Rog" Color="#ff2e4d"/>
+        <SolidColorBrush x:Key="RogSoft" Color="#2a141a"/>
+        <SolidColorBrush x:Key="Cpu" Color="#38c8f0"/>
+        <SolidColorBrush x:Key="Gpu" Color="#8fd400"/>
+        <SolidColorBrush x:Key="Ram" Color="#ffb02e"/>
+        <SolidColorBrush x:Key="Ollama" Color="#2ee6c8"/>
+        <SolidColorBrush x:Key="OllamaSoft" Color="#123c36"/>
+        <SolidColorBrush x:Key="Strata" Color="#d24bff"/>
+        <SolidColorBrush x:Key="StrataSoft" Color="#33163c"/>
+        <SolidColorBrush x:Key="Ok" Color="#3ddc84"/>
+        <SolidColorBrush x:Key="OkSoft" Color="#14251c"/>
+        <SolidColorBrush x:Key="Warn" Color="#ffb02e"/>
+        <SolidColorBrush x:Key="Danger" Color="#ff4d5e"/>
+        <SolidColorBrush x:Key="Info" Color="#4da3ff"/>
+        <SolidColorBrush x:Key="CpuLight" Color="#9be8ff"/>
+        <SolidColorBrush x:Key="Code" Color="#c9d6e6"/>
+
+        <LinearGradientBrush x:Key="CardBg" StartPoint="0,0" EndPoint="0.34,1">
+            <GradientStop Color="#10161f" Offset="0"/><GradientStop Color="#151d29" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="VramGrad" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#8fd400" Offset="0"/><GradientStop Color="#ffb02e" Offset="0.55"/><GradientStop Color="#ff2e4d" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="LogoGrad" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#ff2e4d" Offset="0"/><GradientStop Color="#7a0e22" Offset="0.5"/><GradientStop Color="#ff2e4d" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="TopbarBg" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EB0a0e15" Offset="0"/><GradientStop Color="#B80a0e15" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SumAccent" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#2ee6c8" Offset="0"/><GradientStop Color="#d24bff" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- 系列色辉光（原型 drop-shadow / box-shadow） -->
+        <DropShadowEffect x:Key="GlowRog" Color="#ff2e4d" BlurRadius="14" ShadowDepth="0" Opacity="0.55"/>
+        <DropShadowEffect x:Key="GlowCpu" Color="#38c8f0" BlurRadius="12" ShadowDepth="0" Opacity="0.6"/>
+        <DropShadowEffect x:Key="GlowGpu" Color="#8fd400" BlurRadius="12" ShadowDepth="0" Opacity="0.6"/>
+        <DropShadowEffect x:Key="GlowRam" Color="#ffb02e" BlurRadius="12" ShadowDepth="0" Opacity="0.6"/>
+        <DropShadowEffect x:Key="GlowOllama" Color="#2ee6c8" BlurRadius="14" ShadowDepth="0" Opacity="0.6"/>
+        <DropShadowEffect x:Key="GlowStrata" Color="#d24bff" BlurRadius="14" ShadowDepth="0" Opacity="0.6"/>
+        <DropShadowEffect x:Key="GlowOk" Color="#3ddc84" BlurRadius="10" ShadowDepth="0" Opacity="0.8"/>
+        <DropShadowEffect x:Key="GlowWarn" Color="#ffb02e" BlurRadius="10" ShadowDepth="0" Opacity="0.8"/>
+        <DropShadowEffect x:Key="GlowInfo" Color="#4da3ff" BlurRadius="10" ShadowDepth="0" Opacity="0.8"/>
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBg}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Line2}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="Padding" Value="22"/>
+        </Style>
+
+        <!-- 首页入口卡：悬停上浮 6px + 系列色描边/辉光（原型 .card:hover） -->
+        <Style x:Key="HomeCardMon" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBg}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Line2}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="Padding" Value="20,22,20,18"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="RenderTransform"><Setter.Value><TranslateTransform/></Setter.Value></Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource Rog}"/>
+                    <Setter Property="Effect" Value="{StaticResource GlowRog}"/>
+                    <Setter Property="RenderTransform"><Setter.Value><TranslateTransform Y="-6"/></Setter.Value></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="HomeCardEng" TargetType="Border" BasedOn="{StaticResource HomeCardMon}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource Ollama}"/>
+                    <Setter Property="Effect" Value="{StaticResource GlowOllama}"/>
+                    <Setter Property="RenderTransform"><Setter.Value><TranslateTransform Y="-6"/></Setter.Value></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="H2" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="26"/><Setter Property="FontWeight" Value="ExtraBold"/>
+            <Setter Property="Foreground" Value="{StaticResource Text}"/>
+        </Style>
+        <Style x:Key="Sub" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/><Setter Property="Foreground" Value="{StaticResource Dim}"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+        </Style>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11.5"/><Setter Property="Foreground" Value="{StaticResource Dim}"/>
+        </Style>
+        <Style x:Key="KLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10.5"/><Setter Property="Foreground" Value="{StaticResource Faint}"/>
+        </Style>
+        <Style x:Key="Value" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12.5"/><Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <Style x:Key="BigNum" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="32"/><Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontWeight" Value="Bold"/><Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="StatNum" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="19"/><Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontWeight" Value="Bold"/><Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+
+        <Style x:Key="Btn" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource Overlay}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Line2}"/>
+            <Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="FontSize" Value="13"/><Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="16,11"/><Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="11" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#233145"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.4"/><Setter Property="Cursor" Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="BtnDanger" TargetType="Button" BasedOn="{StaticResource Btn}">
+            <Setter Property="Background" Value="{StaticResource RogSoft}"/>
+            <Setter Property="BorderBrush" Value="#7a3a44"/>
+            <Setter Property="Foreground" Value="{StaticResource Danger}"/>
+            <Setter Property="Padding" Value="12,8"/><Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="BtnOllama" TargetType="Button" BasedOn="{StaticResource Btn}">
+            <Setter Property="Background" Value="{StaticResource OllamaSoft}"/><Setter Property="BorderBrush" Value="{StaticResource Ollama}"/>
+            <Setter Property="Foreground" Value="{StaticResource Ollama}"/>
+        </Style>
+        <Style x:Key="BtnStrata" TargetType="Button" BasedOn="{StaticResource Btn}">
+            <Setter Property="Background" Value="{StaticResource StrataSoft}"/><Setter Property="BorderBrush" Value="{StaticResource Strata}"/>
+            <Setter Property="Foreground" Value="{StaticResource Strata}"/>
+        </Style>
+        <Style x:Key="SegBtn" TargetType="Button" BasedOn="{StaticResource Btn}">
+            <Setter Property="Background" Value="{StaticResource Surface}"/>
+            <Setter Property="Foreground" Value="{StaticResource Dim}"/>
+            <Setter Property="Padding" Value="16,9"/>
+        </Style>
+        <Style x:Key="CopyBtn" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource Surface}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Line2}"/>
+            <Setter Property="Foreground" Value="{StaticResource Dim}"/>
+            <Setter Property="FontSize" Value="11"/><Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BackBtn" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource Surface}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Line2}"/>
+            <Setter Property="Foreground" Value="{StaticResource Dim}"/>
+            <Setter Property="FontSize" Value="13"/><Setter Property="Padding" Value="13,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="9" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource Text}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource Rog}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <!-- 窗口圆点（原型 .wdots）：第一=最小化，第三=关闭 -->
+        <Style x:Key="Wdot" TargetType="Button">
+            <Setter Property="Width" Value="12"/><Setter Property="Height" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Ellipse Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="1"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 水位条（原型 .mbar：bg0 底 + 系列色 + 辉光） -->
+        <Style x:Key="Bar" TargetType="ProgressBar">
+            <Setter Property="Height" Value="5"/><Setter Property="Maximum" Value="100"/>
+            <Setter Property="Background" Value="{StaticResource Bg0}"/>
+            <Setter Property="Foreground" Value="{StaticResource Rog}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}" CornerRadius="3"/>
+                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}"
+                                    CornerRadius="3" HorizontalAlignment="Left"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 滚动条（原型 ::-webkit-scrollbar：11px、bg0 轨、overlay→surface2 拇指、悬停 rog） -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Width" Value="11"/>
+            <Setter Property="Background" Value="{StaticResource Bg0}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="{StaticResource Bg0}">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border CornerRadius="8" BorderBrush="{StaticResource Bg0}" BorderThickness="2">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                            <GradientStop Color="#1b2534" Offset="0"/><GradientStop Color="#151d29" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Height" Value="11"/><Setter Property="Width" Value="Auto"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 模型列表（原型 .model-item：bg0 底、line 边、11 圆角；loaded=系列色） -->
+        <Style x:Key="DarkList" TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="13,11"/>
+                        <Setter Property="Margin" Value="0,0,0,8"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="Bd" Background="{StaticResource Bg0}" BorderBrush="{StaticResource Line}"
+                                            BorderThickness="1" CornerRadius="11" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Ollama}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Ollama}"/>
+                                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource OllamaSoft}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Application.Resources>
 </Application>

@@ -1,0 +1,165 @@
+<UserControl x:Class="SystemMonitor.Views.MonitorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="clr-namespace:SystemMonitor.Controls">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,6,0,20">
+            <StackPanel>
+                <TextBlock Style="{StaticResource H2}">硬件<Run Foreground="{StaticResource Rog}">监控</Run></TextBlock>
+                <TextBlock Style="{StaticResource Sub}">LibreHardwareMonitor + NVML · 1s 采集 · 进程内直读</TextBlock>
+            </StackPanel>
+            <Border HorizontalAlignment="Right" VerticalAlignment="Top" CornerRadius="14" Padding="9,4"
+                    Background="{StaticResource OkSoft}" BorderBrush="#2b5c40" BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse x:Name="MonPd" Width="7" Height="7" Fill="{StaticResource Ok}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBlock x:Name="MonChip" Text="实时采集" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Ok}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+          <StackPanel HorizontalAlignment="Stretch">
+            <!-- CPU（原型 .mcard.cpu：顶部 3px 渐变线 + 环辉光） -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,18">
+                <Grid>
+                    <Border Height="3" VerticalAlignment="Top" Margin="-22,-22,-22,0" CornerRadius="18,18,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#38c8f0" Offset="0"/><GradientStop Color="#0038c8f0" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <Rectangle Width="9" Height="9" RadiusX="3" RadiusY="3" Fill="{StaticResource Cpu}" Effect="{StaticResource GlowCpu}" Margin="0,0,9,0"/>
+                            <TextBlock Text="CPU" FontSize="14" FontWeight="Bold"/>
+                        </StackPanel>
+                        <TextBlock x:Name="CpuName" Text="--" FontSize="11" Foreground="{StaticResource Faint}"
+                                   TextTrimming="CharacterEllipsis" Margin="0,0,0,16"/>
+                        <Grid Width="150" Height="150" HorizontalAlignment="Center" Margin="0,0,0,16">
+                            <ctl:RingGauge x:Name="CpuRing" Stroke="{StaticResource Cpu}" Max="100" Effect="{StaticResource GlowCpu}"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="CpuTempNum" Style="{StaticResource BigNum}" Text="--"/>
+                                <TextBlock Text="°C" FontSize="12" Foreground="{StaticResource Dim}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                <TextBlock Text="温度" FontSize="10.5" Foreground="{StaticResource Faint}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,0,0,3"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="使用率" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="CpuLoadText" Grid.Column="1" Style="{StaticResource Value}" Foreground="{StaticResource Cpu}"/>
+                        </Grid>
+                        <ProgressBar x:Name="CpuLoadBar" Style="{StaticResource Bar}" Foreground="{StaticResource Cpu}" Margin="0,0,0,9"/>
+                        <Grid Margin="0,0,0,9"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="频率" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="CpuClockText" Grid.Column="1" Style="{StaticResource Value}"/>
+                        </Grid>
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="电压" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="CpuVoltText" Grid.Column="1" Style="{StaticResource Value}"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- GPU -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,18">
+                <Grid>
+                    <Border Height="3" VerticalAlignment="Top" Margin="-22,-22,-22,0" CornerRadius="18,18,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#8fd400" Offset="0"/><GradientStop Color="#008fd400" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <Rectangle Width="9" Height="9" RadiusX="3" RadiusY="3" Fill="{StaticResource Gpu}" Effect="{StaticResource GlowGpu}" Margin="0,0,9,0"/>
+                            <TextBlock Text="GPU" FontSize="14" FontWeight="Bold"/>
+                        </StackPanel>
+                        <TextBlock x:Name="GpuName" Text="--" FontSize="11" Foreground="{StaticResource Faint}"
+                                   TextTrimming="CharacterEllipsis" Margin="0,0,0,16"/>
+                        <Grid Width="150" Height="150" HorizontalAlignment="Center" Margin="0,0,0,16">
+                            <ctl:RingGauge x:Name="GpuRing" Stroke="{StaticResource Gpu}" Max="100" Effect="{StaticResource GlowGpu}"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="GpuTempNum" Style="{StaticResource BigNum}" Text="--"/>
+                                <TextBlock Text="°C" FontSize="12" Foreground="{StaticResource Dim}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                <TextBlock Text="温度" FontSize="10.5" Foreground="{StaticResource Faint}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,0,0,3"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="使用率" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="GpuLoadText" Grid.Column="1" Style="{StaticResource Value}" Foreground="{StaticResource Gpu}"/>
+                        </Grid>
+                        <ProgressBar x:Name="GpuLoadBar" Style="{StaticResource Bar}" Foreground="{StaticResource Gpu}" Margin="0,0,0,9"/>
+                        <Grid Margin="0,0,0,9"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="核心 / 显存频率" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="GpuClockText" Grid.Column="1" Style="{StaticResource Value}"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,9"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="功耗 TGP" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="GpuPowerText" Grid.Column="1" Style="{StaticResource Value}"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,3"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="显存占用" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="GpuVramText" Grid.Column="1" Style="{StaticResource Value}" Foreground="{StaticResource Ram}"/>
+                        </Grid>
+                        <ProgressBar x:Name="GpuVramBar" Style="{StaticResource Bar}" Foreground="{StaticResource VramGrad}" Effect="{StaticResource GlowRam}" Margin="0,0,0,4"/>
+                        <TextBlock Text="设备级含桌面占用 · 切引擎判据 基线+500MB / 10s" FontSize="11" Foreground="{StaticResource Faint}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 内存 -->
+            <Border Style="{StaticResource Card}" Margin="0">
+                <Grid>
+                    <Border Height="3" VerticalAlignment="Top" Margin="-22,-22,-22,0" CornerRadius="18,18,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#ffb02e" Offset="0"/><GradientStop Color="#00ffb02e" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <Rectangle Width="9" Height="9" RadiusX="3" RadiusY="3" Fill="{StaticResource Ram}" Effect="{StaticResource GlowRam}" Margin="0,0,9,0"/>
+                            <TextBlock Text="内存" FontSize="14" FontWeight="Bold"/>
+                        </StackPanel>
+                        <TextBlock x:Name="MemName" Text="--" FontSize="11" Foreground="{StaticResource Faint}"
+                                   TextTrimming="CharacterEllipsis" Margin="0,0,0,16"/>
+                        <Grid Width="150" Height="150" HorizontalAlignment="Center" Margin="0,0,0,16">
+                            <ctl:RingGauge x:Name="MemRing" Stroke="{StaticResource Ram}" Max="100" Effect="{StaticResource GlowRam}"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="MemLoadNum" Style="{StaticResource BigNum}" Text="--"/>
+                                <TextBlock Text="%" FontSize="12" Foreground="{StaticResource Dim}" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                <TextBlock Text="RAM 占用" FontSize="10.5" Foreground="{StaticResource Faint}" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,0,0,3"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="已用 / 总量" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="MemUsedText" Grid.Column="1" Style="{StaticResource Value}" Foreground="{StaticResource Ram}"/>
+                        </Grid>
+                        <ProgressBar x:Name="MemLoadBar" Style="{StaticResource Bar}" Foreground="{StaticResource Ram}" Margin="0,0,0,9"/>
+                        <Grid Margin="0,0,0,9"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="频率" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="MemClockText" Grid.Column="1" Style="{StaticResource Value}"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,3"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="可用内存" Style="{StaticResource Label}"/>
+                            <TextBlock x:Name="MemFreeText" Grid.Column="1" Style="{StaticResource Value}"/>
+                        </Grid>
+                        <ProgressBar x:Name="MemFreeBar" Style="{StaticResource Bar}" Foreground="{StaticResource Ram}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+
+        <TextBlock x:Name="StatusText" Grid.Row="2" Text="初始化中…" FontSize="11" Foreground="{StaticResource Faint}" Margin="0,14,0,0"/>
+    </Grid>
+</UserControl>

@@ -107,6 +107,7 @@ public sealed class SensorService : IDisposable
         // 独显优先；独显休眠时回退到核显
         IHardware? gpu = gpuNvidia ?? gpuAmd;
 
+        var (memUsed, memTotal) = NvmlMemGB();
         var snap = new SensorSnapshot(
             CpuClock: CpuAverageClock(cpu),
             CpuLoad: Find(cpu, SensorType.Load, "CPU Total"),
@@ -125,6 +126,8 @@ public sealed class SensorService : IDisposable
             GpuTemp: Find(gpu, SensorType.Temperature, "GPU Core"),
             GpuVoltage: FirstOfType(gpu, SensorType.Voltage),
             GpuPower: NvmlPowerWatts(),
+            GpuMemUsed: memUsed,
+            GpuMemTotal: memTotal,
             GpuName: gpu?.Name ?? Formatting.Missing,
             MemLoad: Find(memory, SensorType.Load, "Memory"),
             MemUsed: Find(memory, SensorType.Data, "Memory Used"),
@@ -307,6 +310,27 @@ public sealed class SensorService : IDisposable
         catch { return null; }
     }
 
+    /// <summary>设备级显存 used/total（字节→GB）。切换引擎的「显存已释放」判据用此读数。</summary>
+    private (double? Used, double? Total) NvmlMemGB()
+    {
+        if (!_nvmlReady) return (null, null);
+        try
+        {
+            return NvmlGetMemory(_nvmlDevice, out var m) == 0
+                ? (m.Used / 1073741824.0, m.Total / 1073741824.0)
+                : (null, null);
+        }
+        catch { return (null, null); }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NvmlMemoryInfo
+    {
+        public ulong Total;
+        public ulong Free;
+        public ulong Used;
+    }
+
     // NVML 时钟类型（nvml.h 的 nvmlClockType_t）：0=Graphics(核心)，1=SM，2=Mem(显存)，3=Video
     // 注意：GRAPHICS 是 0 不是 1！之前写成 1/3 实际读到的是 SM 和 VIDEO 时钟
     private const int NvmlClockGraphics = 0;
@@ -346,6 +370,8 @@ public sealed class SensorService : IDisposable
     private static extern int NvmlGetHandle(uint index, out IntPtr device);
     [DllImport("nvml.dll", EntryPoint = "nvmlDeviceGetPowerUsage")]
     private static extern int NvmlGetPower(IntPtr device, out uint powerMilliwatts);
+    [DllImport("nvml.dll", EntryPoint = "nvmlDeviceGetMemoryInfo")]
+    private static extern int NvmlGetMemory(IntPtr device, out NvmlMemoryInfo memory);
     [DllImport("nvml.dll", EntryPoint = "nvmlDeviceGetClockInfo")]
     private static extern int NvmlGetClock(IntPtr device, int clockType, out uint clockMHz);
     [DllImport("nvml.dll", EntryPoint = "nvmlShutdown")]
