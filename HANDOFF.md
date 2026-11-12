@@ -4,46 +4,44 @@
 
 ## 这程序是什么
 
-轻量 Windows 桌面软件，**纯监控**（2026-10-25 v3 起）：CPU/GPU/内存实时状态，1s 刷新，只读。
+Windows 桌面 exe（WPF，管理员，单实例，托盘）：**硬件监控 + 本地模型引擎控制枢纽**。
+首页两卡 → 硬件监控视图（圆环三卡 + GPU 显存行 + CPU/GPU 并排曲线）/ 模型引擎视图（Ollama/Strata 合一：摘要条、分段启停、切换互斥、停止+撤销、模型加载、指标、调用助手）。
 
-**明确不做**：性能模式切换（操作模式整套删除，代码在 git 历史里）、风扇（显示与控制都不要）、风扇曲线编辑、功耗编辑、灯效、GPU 模式切换、小程序。
-
-## 技术路线（已定，勿推翻）
-
-- C# / .NET 8 + WPF
-- 采集：LibreHardwareMonitorLib + NVML
-- 模式切换：华硕 ACPI WMI（官方驱动接口），参考 G-Helper 实现
-- 全程不逆向、不修改 Armoury Crate；管理员权限运行
-
-## 目标机型
-
-ROG Strix（Ryzen 9 5900HX + RTX 3080 Laptop，2021 款）。先做这一台，不承诺通用兼容。
+**明确不做**：模型拉取、风扇/性能模式/灯效（历史已删）、Python/浏览器/HTTP 代理（网页方案作废）。
 
 ## 做到哪一步
 
-- 2026-10-25：立项完成，PRODUCT.md 主人已确认。
-- 2026-10-25：PLAN 步骤 0-4 完成。探针实测通过（G533QS：CPU/GPU/风扇/模式/TGP 全部可读；风扇原始值×100=RPM）。Core（采集+模式读写）+ WPF 面板 + 7 项单测全绿。
-- 2026-10-25：二轮反馈「还是丑」+ 指截图删「操作模式」（主人称之为风扇调整）→ v3：改纯监控，Modes 目录删除，UI 参考 NZXT CAM/iCUE 改圆环仪表盘（StrokeDashArray + 自定义转换器）。
-- **待真机验证**（主人做）：与 AC 并排对比数值。
-- 2026-10-25 收尾：托盘（NotifyIcon + app.ico）、开机自启（HKCU Run 键菜单开关）、README、30 分钟稳定性长跑采样。界面经主人确认 OK。
-- 下一步（可选）：把仓库推 GitHub（需主人先在 github.com/new 建仓库）；换机型适配（WMI 接口差异）。
-
-## 实测要点（后续会话直接用）
-
-- 机型实际为 **ASUS G533QS**（ROG Strix Scar 15 2021，5900HX + RTX 3080 Laptop）
-- ATKACPI IOCTL = **0x0022240C**（不是 0x222810）；输入 [MethodID][参数长度][DeviceID]，输出 16B、偏移 0、减 0x10000
-- 性能模式设备 ID 0x00120075；风扇 CPU 0x00110013 / GPU 0x00110014
-- 风扇原始值 = RPM/100；NVML 读 TGP 正常；LHM 不覆盖本机风扇和 GPU 功耗
-- dotnet 在 `C:\Program Files\dotnet\dotnet.exe`（bash 里需 export PATH）
+- 2026-10-25：纯监控 v1.0.17 发布（托盘/自启/诊断/圆环界面）。
+- 2026-11-11：方案反转拍板（exe 为主界面），方案文档 + 交互原型定稿（WorkBuddy `推理控制面板方案.md` / `推理面板-UI示意.html`）。
+- **2026-11-12：P1–P5 实施完成，真机实测通过**：
+  - 导航三视图、首页实时摘要 ✓（截屏验证）
+  - NVML 设备级显存 ✓（14.6GB→0.2GB 回落可见）
+  - Ollama 启动/模型列表(10 项)/点选加载 gpt-oss:20b（/api/ps 读回）/停止/撤销 ✓
+  - 切换互斥（起 Strata 前 Ollama 已停）✓；Strata launch/stop 闭环 ✓
+  - 复制按钮 → 剪贴板整串端点 ✓；Strata engine.log 指标解析 ✓
+  - 单测 10/10 绿（r10 增加 tok/s 稳定样本阈值用例）；编译 0 错误
+  - 修复：1s Timer 重入并发 Collect 致 LHM native AV 崩溃 → 重入锁
+- **未提交 git**（主人未要求提交，HEAD 仍是 10-25 的 `40f2577` v1.0.17）。最新单文件 exe 在 **release-r11/SystemMonitor.exe**（65.5 MB，11-12 11:05:52，当前运行中 PID 4840）；`release/`、`dist-release/` 是旧的 9.2 MB 框架依赖版，且被系统句柄长锁，**勿覆盖/删除**，发新包一律新建 `release-r12/`。
+- 视觉迭代包 r3–r11 与各轮反馈记录见方案 md §十二；`.gitignore` 已忽略 `release*/`，这些包不再计入未跟踪项。
+- 2026-11-12 二轮视觉对齐：WPF 与原型 `推理面板-UI示意.html` 逐字对齐（色板/氛围背景/顶栏/辉光/动效/滚动条），三视图截屏比对通过。
+- 待主人：30 分钟挂机长跑、验收下结论。
 
 ## 怎么接手
 
-1. 读 PRODUCT.md（做什么）、GLOSSARY.md（术语）、AGENTS.md（纪律与命令）、PLAN.md（步骤与当前状态）
-2. 按 PLAN.md 当前未完成步骤继续，每步完成后更新 PLAN.md 状态 + 本文
-3. 性能模式的 WMI 调用细节看 G-Helper 源码 `app/AsusACPI.cs` 和 `app/Mode/ModeControl.cs`（https://github.com/seerge/g-helper）
+1. 读 PRODUCT.md / AGENTS.md / GLOSSARY.md / PLAN.md。
+2. 构建/测试/发布命令见 AGENTS.md；真机启动必须 `Start-Process -WindowStyle Normal`。
+3. UI 自动化脚本在 `C:\Users\Administrator\AppData\Local\Temp\sm-nav.ps1 / sm-e2e.ps1 / sm-e2e2.ps1 / sm-strata.ps1`（需 UTF-8 BOM；UIA 窗口挑 ClassName=Window）。
+4. 引擎状态文件：`%LOCALAPPDATA%\SystemMonitor\logs\engine-state.json`；引擎子进程日志同目录 ollama-serve.log / strata-launch.log。
 
-## 关键注意事项
+## 关键注意事项（踩过的坑）
 
-- 写操作只有模式切换一处；EC 读取间隔 ≥500ms
-- 切换模式前检测 Armoury Crate 服务，运行中会冲突
-- 探针是第一步也是可行性闸门：风扇 RPM 读不到就要调整 PRODUCT.md 成功标准
+- LHM/NVML 非线程安全 → 采集重入锁勿删。
+- Strata 只认 `--family/--model/--data-dir`；裸 gguf `--model-path` 被拒。
+- 起子进程清代理；HttpClient 用 UseProxy=false。
+- PS 5.1 无 BOM 脚本中文乱码；隐藏控制台父进程启动 GUI 会被 Windows 降级最小化→缩托盘「消失」；自动化启动用 `Start-Process explorer.exe <exe>` 拿前台，或 EnumWindows 找 -25600 隐藏句柄恢复（强恢后 WPF 不重绘会黑屏，须正常启动）。
+- 另一个 WorkBuddy 会话可能同时在调 Strata；真机测引擎前先探端口 8080/11434，避免互斥冲突。
+- 上下文占用指标暂 "--"（Strata telemetry 未解析）；Ollama tok/s 仅加载请求 done 对象可得（无原生 live metrics）。
+
+## 目标机型
+
+ASUS G533QS（5900HX + RTX 3080 Laptop 16GB + 32GB）。先做这一台，不承诺通用兼容。

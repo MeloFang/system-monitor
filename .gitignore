@@ -3,6 +3,7 @@ obj/
 out/
 dist/
 dist-release/
+release*/
 .vs/
 *.user
 probe-output.txt
